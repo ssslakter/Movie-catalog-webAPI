@@ -9,22 +9,22 @@ namespace MovieCatalogAPI.Models
     }
     public class User
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string UserName { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
         public string? AvatarLink { get; set; }
         public List<Movie>? FavoriteMovies { get; set; }
         public List<Review>? Reviews { get; set; }
-        public User(string userName, string email, string password)
+        public User(string userName, string email, string passwordHash)
         {
             UserName = userName;
             Email = email;
-            Password = password;
+            PasswordHash = passwordHash;
         }
     }
 }

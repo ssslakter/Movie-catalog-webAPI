@@ -5,7 +5,7 @@ namespace MovieCatalogAPI.Models
 {
     public class Review
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
         public Movie Movie { get; set; }
         public string? ReviewText { get; set; }

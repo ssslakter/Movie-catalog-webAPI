@@ -2,7 +2,7 @@
 {
     public class ReviewShort
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public int Rating { get; set; }
 

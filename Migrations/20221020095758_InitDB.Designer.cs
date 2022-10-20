@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MovieCatalogAPI.Migrations
 {
     [DbContext(typeof(MovieDBContext))]
-    [Migration("20221017172116_InitDB")]
+    [Migration("20221020095758_InitDB")]
     partial class InitDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,11 +26,12 @@ namespace MovieCatalogAPI.Migrations
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Genre", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("MovieId")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("MovieId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -44,8 +45,9 @@ namespace MovieCatalogAPI.Migrations
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Movie", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AgeLimit")
                         .HasColumnType("integer");
@@ -74,8 +76,8 @@ namespace MovieCatalogAPI.Migrations
                     b.Property<int>("Time")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
@@ -89,12 +91,12 @@ namespace MovieCatalogAPI.Migrations
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Review", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("AuthorId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreateDateTime")
                         .HasColumnType("timestamp with time zone");
@@ -102,9 +104,8 @@ namespace MovieCatalogAPI.Migrations
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("MovieId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("MovieId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
@@ -123,8 +124,9 @@ namespace MovieCatalogAPI.Migrations
 
             modelBuilder.Entity("MovieCatalogAPI.Models.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AvatarLink")
                         .HasColumnType("text");
@@ -139,7 +141,7 @@ namespace MovieCatalogAPI.Migrations
                     b.Property<int>("Gender")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 

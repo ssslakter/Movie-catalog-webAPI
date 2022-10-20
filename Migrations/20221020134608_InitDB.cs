@@ -15,10 +15,11 @@ namespace MovieCatalogAPI.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Gender = table.Column<int>(type: "integer", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Gender = table.Column<int>(type: "integer", nullable: true),
                     AvatarLink = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>

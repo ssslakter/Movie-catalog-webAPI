@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MovieCatalogAPI.Configurations;
 using MovieCatalogAPI.Models;
+using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
 
 namespace MovieCatalogAPI.Controllers
@@ -16,15 +18,22 @@ namespace MovieCatalogAPI.Controllers
             _movieInfoService = movieInfoService;
         }
 
-        //[HttpGet("{page}")]
-        [HttpGet]
-        public ActionResult<MovieElement[]> Get([FromRoute] int page)
+        [HttpGet("{page}")]
+        public IActionResult Get([FromRoute] int page)
         {
-            var movies = _movieInfoService.GetMovieElements();
-            return Ok(movies);
+            var correctPage = Math.Max(1, Math.Min(page, PaginationData.TotalPageCount));
+            var movies = _movieInfoService.GetMovieElements(correctPage);
+
+            var pageInfo = new PageInfoModel
+            {
+                CurrentPage = correctPage,
+                PageCount = PaginationData.TotalPageCount,
+                PageSize = movies.Count
+            };
+            return Ok(new { pageInfo, movies });
         }
         [HttpPost]
-        public ActionResult Post(MovieElement movie)
+        public IActionResult Post(MovieElementModel movie)
         {
             _movieInfoService.WriteToDB(movie);
             return Ok();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MovieCatalogAPI.Models.Core_data;
 
 namespace MovieCatalogAPI.Models
 {
@@ -7,6 +8,7 @@ namespace MovieCatalogAPI.Models
         public DbSet<Movie> Movies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Genre> Genres { get; set; }
 
         public MovieDBContext(DbContextOptions<MovieDBContext> options) : base(options)
         {

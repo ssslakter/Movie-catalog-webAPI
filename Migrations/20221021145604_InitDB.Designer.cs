@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MovieCatalogAPI.Migrations
 {
     [DbContext(typeof(MovieDBContext))]
-    [Migration("20221020134608_InitDB")]
+    [Migration("20221021145604_InitDB")]
     partial class InitDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,13 +24,25 @@ namespace MovieCatalogAPI.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MovieCatalogAPI.Models.Genre", b =>
+            modelBuilder.Entity("GenreMovie", b =>
+                {
+                    b.Property<Guid>("GenresId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MoviesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("GenresId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("GenreMovie");
+                });
+
+            modelBuilder.Entity("MovieCatalogAPI.Models.Core_data.Genre", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("MovieId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -38,9 +50,7 @@ namespace MovieCatalogAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
-
-                    b.ToTable("Genre");
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Movie", b =>
@@ -158,11 +168,19 @@ namespace MovieCatalogAPI.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MovieCatalogAPI.Models.Genre", b =>
+            modelBuilder.Entity("GenreMovie", b =>
                 {
+                    b.HasOne("MovieCatalogAPI.Models.Core_data.Genre", null)
+                        .WithMany()
+                        .HasForeignKey("GenresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MovieCatalogAPI.Models.Movie", null)
-                        .WithMany("Genres")
-                        .HasForeignKey("MovieId");
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Movie", b =>
@@ -193,8 +211,6 @@ namespace MovieCatalogAPI.Migrations
 
             modelBuilder.Entity("MovieCatalogAPI.Models.Movie", b =>
                 {
-                    b.Navigation("Genres");
-
                     b.Navigation("Reviews");
                 });
 

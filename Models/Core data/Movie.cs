@@ -1,9 +1,10 @@
-﻿using NpgsqlTypes;
+﻿using MovieCatalogAPI.Models.Core_data;
+
 
 namespace MovieCatalogAPI.Models
 {
     public class Movie
-    {
+    {       
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Poster { get; set; }

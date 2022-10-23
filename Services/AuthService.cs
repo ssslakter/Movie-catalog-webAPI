@@ -5,14 +5,15 @@ using System.IdentityModel.Tokens.Jwt;
 using MovieCatalogAPI.Configurations;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MovieCatalogAPI.Services
 {
     public interface IAuthService
     {
-        public void AddNewUserToDB(UserRegisterModel userRM);
-        public bool IfUserExists(UserRegisterModel userRM);
-        public ClaimsIdentity GetIdentity(string userName, string password);
+        public Task AddNewUserToDB(UserRegisterModel userRM);
+        public Task<bool> IfUserExists(UserRegisterModel userRM);
+        public Task<ClaimsIdentity> GetIdentity(string userName, string password);
         public JwtSecurityToken CreateNewToken(ClaimsIdentity identity);
     }
     public class AuthService : IAuthService
@@ -26,12 +27,12 @@ namespace MovieCatalogAPI.Services
             _dbContext = dbContext;
         }
 
-        public bool IfUserExists(UserRegisterModel userRM)
+        public async Task<bool> IfUserExists(UserRegisterModel userRM)
         {
-            return _dbContext.Users.Any(user => user.UserName == userRM.UserName && user.Email == userRM.Email);
+            return await _dbContext.Users.AnyAsync(user => user.UserName == userRM.UserName || user.Email == userRM.Email);
         }
 
-        public void AddNewUserToDB(UserRegisterModel userData)
+        public async Task AddNewUserToDB(UserRegisterModel userData)
         {
             var currUser = new User
             {
@@ -42,23 +43,26 @@ namespace MovieCatalogAPI.Services
                 Gender = userData.Gender
             };
             currUser.PasswordHash = _passwordHasher.HashPassword(currUser, userData.Password);
-            _dbContext.Users.Add(currUser);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(currUser);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public ClaimsIdentity GetIdentity(string userName, string password)
+        public async Task<ClaimsIdentity> GetIdentity(string userName, string password)
         {
             //potential error here
-            var user = _dbContext.Users.Where(x => (x.UserName == userName)).AsEnumerable()
-                .FirstOrDefault(x => _passwordHasher.VerifyHashedPassword(x, x.PasswordHash, password) != 0);
-            if (user == null)
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => (x.UserName == userName));
+
+            if (user == null || _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password) == 0)
             {
                 return null;
             }
-
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName)
+        };
 
             //Claims identity и будет являться полезной нагрузкой в JWT токене, которая будет проверяться стандартным атрибутом Authorize
-            var claimsIdentity = new ClaimsIdentity("Token");
+            var claimsIdentity = new ClaimsIdentity(claims, "Token");
             return claimsIdentity;
 
         }

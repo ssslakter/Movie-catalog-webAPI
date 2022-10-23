@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,37 +18,47 @@ namespace MovieCatalogAPI.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(UserRegisterModel model)
+        public async Task<IActionResult> Register(UserRegisterModel model)
         {
-            if (_authService.IfUserExists(model))
+            if (await _authService.IfUserExists(model))
             {
                 return BadRequest(new { errorText = $"Username \'{model.UserName}\' is already taken." });
             }
-            _authService.AddNewUserToDB(model);
+            await _authService.AddNewUserToDB(model);
             return Ok();
         }
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginCredentials model)
+        public async Task<IActionResult> Login([FromBody] LoginCredentials model)
         {
             if (model.Username == null || model.Password == null)
             {
                 return BadRequest(new { errorText = "Username or password where null." });
             }
-            var identity = _authService.GetIdentity(model.Username, model.Password);
+            var identity = await _authService.GetIdentity(model.Username, model.Password);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Login failed. Incorrect username or password" });
             }
             var jwt = _authService.CreateNewToken(identity);
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return new JsonResult(encodedJwt);
+            return new JsonResult(new Dictionary<string, string>() { { "token", encodedJwt } });
         }
 
-
-        [HttpPost("logout")]
-        public void Logout()
+        [Authorize]
+        [HttpGet("check")]
+        public IActionResult CheckAuthor()
         {
+            return Ok($"Authorized {User.Identity.Name}");
 
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            //Возможно костыль
+            Response.Headers.Remove("Authorization");
+            return new JsonResult(new Dictionary<string, string>() { { "token", "" }, { "message", "Logged Out" } });
         }
     }
 

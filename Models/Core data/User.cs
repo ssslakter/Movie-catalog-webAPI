@@ -19,7 +19,7 @@ namespace MovieCatalogAPI.Models
         public string Email { get; set; }
         [Required]
         public string PasswordHash { get; set; }
-        public DateTime? BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
         public Gender? Gender { get; set; }
         public string? AvatarLink { get; set; }
         public List<Movie>? FavoriteMovies { get; set; }

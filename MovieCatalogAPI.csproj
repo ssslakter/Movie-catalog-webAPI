@@ -27,10 +27,11 @@
 		<PackageReference Include="Npgsql" Version="6.0.7" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Migrations\" />
+		<Folder Include="Migrations\" />
 	</ItemGroup>
 
 </Project>

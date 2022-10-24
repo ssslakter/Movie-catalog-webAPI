@@ -31,12 +31,6 @@ namespace MovieCatalogAPI.Controllers
                 PageSize = movies.Count
             };
             return Ok(new { pageInfo, movies });
-        }
-        [HttpPost]
-        public IActionResult Post(MovieElementModel movie)
-        {
-            _movieInfoService.WriteToDB(movie);
-            return Ok();
-        }
+        }        
     }
 }

@@ -39,7 +39,7 @@ namespace MovieCatalogAPI.Services
                 UserName = userData.UserName,
                 Name = userData.Name,
                 Email = userData.Email,
-                BirthDate = userData.BirthDate,
+                BirthDate = userData.BirthDate.ToUniversalTime(),
                 Gender = userData.Gender
             };
             currUser.PasswordHash = _passwordHasher.HashPassword(currUser, userData.Password);

@@ -42,7 +42,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //DataBase
 var connection = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<MovieDBContext>(opts => opts.UseNpgsql(connection));
-
+//Https client
+builder.Services.AddHttpClient();
 //Services
 builder.Services.AddScoped<IMovieInfoService, MovieInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

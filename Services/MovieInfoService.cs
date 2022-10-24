@@ -7,8 +7,7 @@ namespace MovieCatalogAPI.Services
 {
     public interface IMovieInfoService
     {
-        List<MovieElementModel> GetMovieElements(int currentPage);
-        void WriteToDB(MovieElementModel movie);
+        List<MovieElementModel> GetMovieElements(int currentPage);       
     }
 
     public class MovieInfoService : IMovieInfoService
@@ -21,41 +20,7 @@ namespace MovieCatalogAPI.Services
             PaginationData.TotalPageCount = (_dbContext.Movies.Count() + PaginationData.MaxItemsPerPage - 1) / PaginationData.MaxItemsPerPage;
         }
 
-        public void WriteToDB(MovieElementModel movieDTO)
-        {
-            var movie = new Movie
-            {
-                Name = movieDTO.Name,
-                Poster = movieDTO.Poster,
-                Year = movieDTO.Year,
-                Country = movieDTO.Country,
-                Reviews = new List<Review>()
-            };
-            if (movieDTO.Genres != null)
-            {
-                movie.Genres = new List<Genre>();
-                foreach (var genre in movieDTO.Genres)
-                {
-                    var genreInDB = _dbContext.Genres.FirstOrDefault(x => x.Id == genre.Id);
-                    if (genreInDB != null)
-                    {
-                        movie.Genres.Add(genreInDB);
-                        genreInDB.Movies?.Add(movie);
-                    }
-                    else
-                    {
-                        _dbContext.Genres.Add(new Genre
-                        {
-                            Id = genre.Id,
-                            Name = genre.Name,
-                            Movies = new List<Movie> { movie }
-                        });
-                    }
-                }
-            }
-            _dbContext.Movies.Add(movie);
-            _dbContext.SaveChanges();
-        }
+        
 
         public List<MovieElementModel> GetMovieElements(int currentPage)
         {

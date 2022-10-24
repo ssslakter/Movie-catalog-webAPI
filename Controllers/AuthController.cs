@@ -43,14 +43,7 @@ namespace MovieCatalogAPI.Controllers
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
             return new JsonResult(new Dictionary<string, string>() { { "token", encodedJwt } });
         }
-
-        [Authorize]
-        [HttpGet("check")]
-        public IActionResult CheckAuthor()
-        {
-            return Ok($"Authorized {User.Identity.Name}");
-
-        }
+        
 
         [Authorize]
         [HttpPost("logout")]

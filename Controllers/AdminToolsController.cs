@@ -4,20 +4,28 @@ using MovieCatalogAPI.Services;
 
 namespace MovieCatalogAPI.Controllers
 {
+    [Route("api/admin")]
+    [ApiController]
     public class AdminToolsController : Controller
     {
-        private IMovieDataService _getMovieDataService;
+        private IMovieDataService _movieDataService;
 
         public AdminToolsController(IMovieDataService getMovieDataService)
         {
-            _getMovieDataService = getMovieDataService;
+            _movieDataService = getMovieDataService;
         }
 
-        [HttpPost]
-        public IActionResult Post(MovieElementModel movie)
+        [HttpPost("addFilms")]
+        public async Task<IActionResult> Post(int page)
         {
-            _getMovieDataService.AddMovieToDB(movie);
+            await _movieDataService.AddMoviesPageToDB(page);
             return Ok();
+        }
+
+        [HttpGet("getFilms")]
+        public async Task<IActionResult> Get(int page)
+        {
+            return Ok(await _movieDataService.GetMovies(page));
         }
     }
 }

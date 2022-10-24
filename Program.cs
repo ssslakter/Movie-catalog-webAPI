@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 //JWT auth
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opts =>
@@ -47,6 +48,8 @@ builder.Services.AddHttpClient();
 //Services
 builder.Services.AddScoped<IMovieInfoService, MovieInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMovieDataService,MovieDataService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

@@ -2,14 +2,16 @@
 using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.Core_data;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MovieCatalogAPI.Services
 {
     public interface IMovieDataService
     {
-        Task<MovieElementModel> GetMovie(int page);
-        void AddMovieToDB(MovieElementModel movie);
+        Task<MoviesPagedListModel> GetMovies(int page);
+        Task AddMoviesPageToDB(int page);
     }
 
     public class MovieDataService : IMovieDataService
@@ -22,17 +24,31 @@ namespace MovieCatalogAPI.Services
             _httpClientFactory = httpClientFactory;
             _dbContext = dbContext;
         }
+        public async Task AddMoviesPageToDB(int page)
+        {
+            var model = await GetMovies(page);
+            var movies = model.Movies;
+            foreach (var movie in movies)
+            {
+                AddMovieToDB(movie);
+            }
+        }
 
-        public void AddMovieToDB(MovieElementModel movieDTO)
+        private void AddMovieToDB(MovieElementModel movieDTO)
         {
             var movie = new Movie
             {
+                Id = movieDTO.Id,
                 Name = movieDTO.Name,
                 Poster = movieDTO.Poster,
                 Year = movieDTO.Year,
                 Country = movieDTO.Country,
                 Reviews = new List<Review>()
             };
+            if (_dbContext.Movies.FirstOrDefault(x => x.Id == movie.Id) != null)
+            {
+                return;
+            }
             if (movieDTO.Genres != null)
             {
                 movie.Genres = new List<Genre>();
@@ -58,22 +74,26 @@ namespace MovieCatalogAPI.Services
             _dbContext.Movies.Add(movie);
             _dbContext.SaveChanges();
         }
-                
-        public async Task<MovieElementModel> GetMovie(int page)
+
+        public async Task<MoviesPagedListModel> GetMovies(int page)
         {
             var httpRequestMessage = new HttpRequestMessage(
                 HttpMethod.Get,
-                $"https://react-midterm.kreosoft.space/api/movies/{1}");
+                $"https://react-midterm.kreosoft.space/api/movies/{page}");
 
             var httpClient = _httpClientFactory.CreateClient();
             var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
 
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-                using var contentStream =
-                    await httpResponseMessage.Content.ReadAsStreamAsync();
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }; var json = await httpResponseMessage.Content.ReadAsStreamAsync();
+                var model = await JsonSerializer.DeserializeAsync<MoviesPagedListModel>(json, opts);
+                return model;
             }
-            throw new NotImplementedException();
+            throw new BadHttpRequestException("Bad request", 400);
         }
     }
 }

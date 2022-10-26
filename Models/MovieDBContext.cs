@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieCatalogAPI.Models.Core_data;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MovieCatalogAPI.Models
 {
@@ -12,7 +13,7 @@ namespace MovieCatalogAPI.Models
 
         public MovieDBContext(DbContextOptions<MovieDBContext> options) : base(options)
         {
-            Database.EnsureCreated();
-        }
+            Database.EnsureCreated();           
+        }       
     }
 }

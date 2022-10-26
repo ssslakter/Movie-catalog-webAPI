@@ -31,6 +31,21 @@ namespace MovieCatalogAPI.Controllers
                 PageSize = movies.Count
             };
             return Ok(new { pageInfo, movies });
-        }        
+        }
+
+        [HttpGet("details/{id}")]
+        public  IActionResult GetDetails([FromRoute] Guid id)
+        {
+            try
+            {
+                var details =  _movieInfoService.GetMovieDetails(id);
+                return Ok(details);
+            }
+            catch
+            {
+                return new NotFoundResult();
+            }
+
+        }
     }
 }

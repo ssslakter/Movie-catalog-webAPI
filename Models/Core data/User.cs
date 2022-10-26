@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieCatalogAPI.Models
 {
@@ -9,6 +10,7 @@ namespace MovieCatalogAPI.Models
     }
     public class User
     {
+
         public Guid Id { get; set; }
         [Required]
         public string UserName { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.Core_data;
@@ -30,11 +31,11 @@ namespace MovieCatalogAPI.Services
             var movies = model.Movies;
             foreach (var movie in movies)
             {
-                AddMovieToDB(movie);
+                await AddMovieToDB(movie);
             }
         }
 
-        private void AddMovieToDB(MovieElementModel movieDTO)
+        private async Task AddMovieToDB(MovieElementModel movieDTO)
         {
             var movie = new Movie
             {
@@ -47,6 +48,7 @@ namespace MovieCatalogAPI.Services
             };
             if (_dbContext.Movies.FirstOrDefault(x => x.Id == movie.Id) != null)
             {
+                //throw exception
                 return;
             }
             if (movieDTO.Genres != null)
@@ -58,28 +60,53 @@ namespace MovieCatalogAPI.Services
                     if (genreInDB != null)
                     {
                         movie.Genres.Add(genreInDB);
-                        genreInDB.Movies?.Add(movie);
+                        genreInDB.Movies.Add(movie);
                     }
                     else
                     {
-                        _dbContext.Genres.Add(new Genre
+                        var genreNew = new Genre
                         {
                             Id = genre.Id,
                             Name = genre.Name,
                             Movies = new List<Movie> { movie }
-                        });
+                        };
+                        _dbContext.Genres.Add(genreNew);                       
+                        movie.Genres.Add(genreNew);
                     }
                 }
             }
+            await AddMovieDetails(movie);
             _dbContext.Movies.Add(movie);
             _dbContext.SaveChanges();
         }
 
+        private async Task AddMovieDetails(Movie movie)
+        {
+            var details = await GetMovieDetails(movie.Id);
+            movie.Time = details.Time;
+            movie.Tagline = details.Tagline;
+            movie.Description = details.Description;
+            movie.Director = details.Director;
+            movie.Budget = details.Budget;
+            movie.Fees = details.Fees;
+            movie.AgeLimit = details.AgeLimit;
+        }
+
         public async Task<MoviesPagedListModel> GetMovies(int page)
+        {
+            return await GetRequestModel<MoviesPagedListModel>($"https://react-midterm.kreosoft.space/api/movies/{page}");
+        }
+
+        public async Task<MovieDetailsModel> GetMovieDetails(Guid id)
+        {
+            return await GetRequestModel<MovieDetailsModel>($"https://react-midterm.kreosoft.space/api/movies/details/{id}");
+        }
+
+        public async Task<T> GetRequestModel<T>(string requestString)
         {
             var httpRequestMessage = new HttpRequestMessage(
                 HttpMethod.Get,
-                $"https://react-midterm.kreosoft.space/api/movies/{page}");
+                requestString);
 
             var httpClient = _httpClientFactory.CreateClient();
             var httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
@@ -90,7 +117,7 @@ namespace MovieCatalogAPI.Services
                 {
                     PropertyNameCaseInsensitive = true
                 }; var json = await httpResponseMessage.Content.ReadAsStreamAsync();
-                var model = await JsonSerializer.DeserializeAsync<MoviesPagedListModel>(json, opts);
+                var model = await JsonSerializer.DeserializeAsync<T>(json, opts);
                 return model;
             }
             throw new BadHttpRequestException("Bad request", 400);

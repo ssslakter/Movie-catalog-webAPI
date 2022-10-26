@@ -2,7 +2,7 @@
 
 namespace MovieCatalogAPI.Models
 {
-    public class MovieDetails
+    public class MovieDetailsModel
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
@@ -13,6 +13,7 @@ namespace MovieCatalogAPI.Models
         public List<Review>? Reviews { get; set; }
         public int Time { get; set; }
         public string? Tagline { get; set; }
+        public string? Description { get; set; }
         public string? Director { get; set; }
         public int? Budget { get; set; }
         public int? Fees { get; set; }

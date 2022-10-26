@@ -6,16 +6,13 @@ namespace MovieCatalogAPI.Models
 
     public class UserRegisterModel
     {
-        [Required]
-        [PasswordPropertyText]
+        [Required,PasswordPropertyText]
         public string UserName { get; set; }
         [Required]
         public string Name { get; set; }
-        [Required]
-        [PasswordPropertyText]
+        [Required, PasswordPropertyText,MinLength(6)]
         public string Password { get; set; }
-        [EmailAddress]
-        [Required]
+        [Required,EmailAddress]
         public string Email { get; set; }
         [Required]
         public DateTime BirthDate { get; set; }

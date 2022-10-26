@@ -79,7 +79,7 @@ namespace MovieCatalogAPI.Services
             _dbContext.Movies.Add(movie);
             _dbContext.SaveChanges();
         }
-
+                
         private async Task AddMovieDetails(Movie movie)
         {
             var details = await GetMovieDetails(movie.Id);

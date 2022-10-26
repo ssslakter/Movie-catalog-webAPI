@@ -7,5 +7,9 @@ namespace MovieCatalogAPI.Models
         public MovieElementModel[]? Movies { get; set; }
         public PageInfoModel PageInfo { get; set; }
 
+        public MoviesPagedListModel(PageInfoModel pageInfo)
+        {
+            PageInfo = pageInfo;
+        }
     }
 }

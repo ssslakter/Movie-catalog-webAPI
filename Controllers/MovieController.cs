@@ -28,7 +28,7 @@ namespace MovieCatalogAPI.Controllers
             {
                 CurrentPage = correctPage,
                 PageCount = PaginationData.TotalPageCount,
-                PageSize = movies.Count
+                PageSize = movies.Count()
             };
             return Ok(new { pageInfo, movies });
         }

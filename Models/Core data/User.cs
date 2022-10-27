@@ -24,7 +24,7 @@ namespace MovieCatalogAPI.Models
         public DateTime BirthDate { get; set; }
         public Gender? Gender { get; set; }
         public string? AvatarLink { get; set; }
-        public List<Movie>? FavoriteMovies { get; set; }
-        public List<Review>? Reviews { get; set; }
+        public ICollection<Movie>? FavoriteMovies { get; set; }
+        public ICollection<Review>? Reviews { get; set; }
     }
 }

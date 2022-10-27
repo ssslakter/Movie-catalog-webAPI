@@ -9,20 +9,22 @@ namespace MovieCatalogAPI.Services
 {
     public interface IMovieInfoService
     {
-        List<MovieElementModel> GetMovieElements(int currentPage);
+        IEnumerable<MovieElementModel> GetMovieElements(int currentPage);
         Task<MovieDetailsModel> GetMovieDetails(Guid movieId);
     }
 
     public class MovieInfoService : IMovieInfoService
     {
+        private readonly IMovieConverterService _movieConverterService;
         private MovieDBContext _dbContext;
         private ILogger _logger;
 
-        public MovieInfoService(MovieDBContext dbContext, ILogger<MovieInfoService> logger)
+        public MovieInfoService(MovieDBContext dbContext, ILogger<MovieInfoService> logger, IMovieConverterService movieConverterService)
         {
             _logger = logger;
             _dbContext = dbContext;
             PaginationData.TotalPageCount = (_dbContext.Movies.Count() + PaginationData.MaxItemsPerPage - 1) / PaginationData.MaxItemsPerPage;
+            _movieConverterService = movieConverterService;
         }
 
         public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId)
@@ -34,39 +36,16 @@ namespace MovieCatalogAPI.Services
                 throw new KeyNotFoundException($"Not found movie with id {movieId}");
             }
             var Genres = movie.Genres?.Select(g => new GenreModel { Id = g.Id, Name = g.Name }).ToList();
-            return new MovieDetailsModel
-            {
-                Id = movie.Id,
-                Name = movie.Name,
-                Poster = movie.Poster,
-                Year = movie.Year,
-                Country = movie.Country,
-                Genres = movie.Genres?.Select(g => new GenreModel { Id = g.Id, Name = g.Name }).ToList(),
-                Reviews = movie.Reviews,
-                Time = movie.Time,
-                Tagline = movie.Tagline,
-                Description = movie.Description,
-                Director = movie.Director,
-                Budget = movie.Budget,
-                Fees = movie.Fees,
-                AgeLimit = movie.AgeLimit
-            };
+            return _movieConverterService.MoviesToMovieDetails(movie);
         }
 
-        public List<MovieElementModel> GetMovieElements(int currentPage)
+        public IEnumerable<MovieElementModel> GetMovieElements(int currentPage)
         {
-            return _dbContext.Movies.OrderBy(x => x.Year).Skip((currentPage - 1) * PaginationData.MaxItemsPerPage)
-                .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).Include(x=>x.Reviews).ToList()
-                .Select(x => new MovieElementModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Poster = x.Poster,
-                    Year = x.Year,
-                    Country = x.Country,
-                    Genres = x.Genres?.Select(g => new GenreModel { Id = g.Id, Name = g.Name }).ToList(),
-                    Reviews = x.Reviews?.Select(r => r.ToShort()).ToList()
-                }).ToList();
+            return _movieConverterService.MoviesToMovieElements(_dbContext.Movies.OrderBy(x => x.Year)
+                .Skip((currentPage - 1) * PaginationData.MaxItemsPerPage)
+                .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).Include(x => x.Reviews)
+                .ToList()
+                );
         }
     }
 }

@@ -20,19 +20,19 @@ namespace MovieCatalogAPI.Services
         }
 
         public async Task<ProfileModel> GetUserProfile(string userName)
-        {     
-            var user = await _dbContext.Users.FirstOrDefaultAsync(x=> x.UserName == userName);
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             if (user == null)
             {
                 throw new ArgumentNullException(nameof(userName));
             }
-            return new ProfileModel(user.Email,user.Name,user.UserName)
+            return new ProfileModel(user.Email, user.Name, user.UserName)
             {
-                Id=user.Id,
-                AvatarLink=user.AvatarLink,
-                BirthDate=user.BirthDate,
-                Gender=user.Gender
-            };            
+                Id = user.Id,
+                AvatarLink = user.AvatarLink,
+                BirthDate = user.BirthDate,
+                Gender = user.Gender
+            };
         }
 
         public async Task UpdateUserProfile(ProfileModel profile)
@@ -43,14 +43,14 @@ namespace MovieCatalogAPI.Services
                 throw new InvalidEnumArgumentException($"User with ID {profile.Id} doesn't exist!");
             }
             user.BirthDate = profile.BirthDate;
-            user.AvatarLink= profile.AvatarLink;
-            user.Name=profile.Name;
-            user.Gender= profile.Gender;
-            if(user.Email==profile.Email || _dbContext.Users.FirstOrDefaultAsync(x => x.Email == profile.Email) == null)
+            user.AvatarLink = profile.AvatarLink;
+            user.Name = profile.Name;
+            user.Gender = profile.Gender;
+            if (user.Email == profile.Email || _dbContext.Users.FirstOrDefaultAsync(x => x.Email == profile.Email) == null)
             {
                 user.Email = profile.Email;
             }
-            if(user.UserName==profile.UserName || _dbContext.Users.FirstOrDefaultAsync(x=> x.UserName == profile.UserName) == null)
+            if (user.UserName == profile.UserName || _dbContext.Users.FirstOrDefaultAsync(x => x.UserName == profile.UserName) == null)
             {
                 user.UserName = profile.UserName;
             }

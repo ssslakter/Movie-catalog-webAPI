@@ -50,6 +50,7 @@ builder.Services.AddScoped<IMovieInfoService, MovieInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMovieDataService,MovieDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IMovieConverterService, MovieConverterService>();
 builder.Logging.AddConsole();
 var app = builder.Build();
 

@@ -7,12 +7,12 @@ namespace MovieCatalogAPI.Services
 {
     public interface IMovieConverterService
     {
-        IEnumerable<MovieElementModel> MoviesToMovieElements(IEnumerable<Movie> movies);
+        ICollection<MovieElementModel> MoviesToMovieElements(IEnumerable<Movie> movies);
         MovieDetailsModel MoviesToMovieDetails(Movie movie);
     }
     public class MovieConverterService: IMovieConverterService
     {
-        public IEnumerable<MovieElementModel> MoviesToMovieElements(IEnumerable<Movie> movies)
+        public ICollection<MovieElementModel> MoviesToMovieElements(IEnumerable<Movie> movies)
         {
             return movies.Select(x => new MovieElementModel
             {

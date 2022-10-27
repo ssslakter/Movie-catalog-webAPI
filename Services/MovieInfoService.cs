@@ -18,7 +18,7 @@ namespace MovieCatalogAPI.Services
         private MovieDBContext _dbContext;
         private ILogger _logger;
 
-        public MovieInfoService(MovieDBContext dbContext, ILogger logger)
+        public MovieInfoService(MovieDBContext dbContext, ILogger<MovieInfoService> logger)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -33,6 +33,7 @@ namespace MovieCatalogAPI.Services
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
                 throw new KeyNotFoundException($"Not found movie with id {movieId}");
             }
+            var Genres = movie.Genres?.Select(g => new GenreModel { Id = g.Id, Name = g.Name }).ToList();
             return new MovieDetailsModel
             {
                 Id = movie.Id,

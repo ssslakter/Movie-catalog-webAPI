@@ -56,7 +56,7 @@ namespace MovieCatalogAPI.Services
                 movie.Genres = new List<Genre>();
                 foreach (var genre in movieDTO.Genres)
                 {
-                    var genreInDB = _dbContext.Genres.FirstOrDefault(x => x.Id == genre.Id);
+                    var genreInDB = await _dbContext.Genres.Include(x=>x.Movies).FirstOrDefaultAsync(x => x.Id == genre.Id);
                     if (genreInDB != null)
                     {
                         movie.Genres.Add(genreInDB);

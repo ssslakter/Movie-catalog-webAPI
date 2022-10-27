@@ -34,11 +34,11 @@ namespace MovieCatalogAPI.Controllers
         }
 
         [HttpGet("details/{id}")]
-        public  IActionResult GetDetails([FromRoute] Guid id)
+        public async Task<IActionResult> GetDetails([FromRoute] Guid id)
         {
             try
             {
-                var details =  _movieInfoService.GetMovieDetails(id);
+                var details = await _movieInfoService.GetMovieDetails(id);
                 return Ok(details);
             }
             catch(KeyNotFoundException e)

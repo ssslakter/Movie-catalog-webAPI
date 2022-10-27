@@ -9,7 +9,7 @@ namespace MovieCatalogAPI.Models
         public string? Poster { get; set; }
         public int Year { get; set; }
         public string? Country { get; set; }
-        public List<GenreModel>? Genres { get; set; }
-        public List<ReviewShort>? Reviews { get; set; }
+        public ICollection<GenreModel>? Genres { get; set; }
+        public ICollection<ReviewShort>? Reviews { get; set; }
     }
 }

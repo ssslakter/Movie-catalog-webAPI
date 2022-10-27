@@ -41,9 +41,13 @@ namespace MovieCatalogAPI.Controllers
                 var details =  _movieInfoService.GetMovieDetails(id);
                 return Ok(details);
             }
+            catch(KeyNotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
             catch
             {
-                return new NotFoundResult();
+                return StatusCode(500);
             }
 
         }

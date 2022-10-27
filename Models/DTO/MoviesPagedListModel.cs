@@ -4,7 +4,7 @@ namespace MovieCatalogAPI.Models
 {
     public class MoviesPagedListModel
     {
-        public MovieElementModel[]? Movies { get; set; }
+        public ICollection<MovieElementModel> Movies { get; set; }
         public PageInfoModel PageInfo { get; set; }
 
         public MoviesPagedListModel(PageInfoModel pageInfo)

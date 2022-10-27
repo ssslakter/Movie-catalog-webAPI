@@ -58,11 +58,12 @@ namespace MovieCatalogAPI.Services
             }
             var claims = new List<Claim>
         {
-            new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName)
+            new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName),
+            new Claim(ClaimsIdentity.DefaultRoleClaimType,user.Role)
         };
 
             //Claims identity и будет являться полезной нагрузкой в JWT токене, которая будет проверяться стандартным атрибутом Authorize
-            var claimsIdentity = new ClaimsIdentity(claims, "Token");
+            var claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             return claimsIdentity;
 
         }

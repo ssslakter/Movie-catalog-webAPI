@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,10 +23,18 @@ namespace MovieCatalogAPI.Controllers
         {
             if (await _authService.IfUserExists(model))
             {
-                return BadRequest(new { errorText = $"Username \'{model.UserName}\' is already taken." });
+                return Problem(statusCode: 400, title: "User Registration Failed",
+                    detail: $"User with username \'{model.UserName}\' or email \'{model.Email}\' is already taken.");
             }
-            await _authService.AddNewUserToDB(model);
-            return Ok();
+            try
+            {
+                await _authService.AddNewUserToDB(model);
+                return await Login(new LoginCredentials { Username = model.UserName, Password = model.Password });
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong on the server");
+            }
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCredentials model)
@@ -37,13 +46,13 @@ namespace MovieCatalogAPI.Controllers
             var identity = await _authService.GetIdentity(model.Username, model.Password);
             if (identity == null)
             {
-                return BadRequest(new { errorText = "Login failed. Incorrect username or password" });
+                return Problem(statusCode: 400, title: "Login failed", detail: " Incorrect username or password");
             }
             var jwt = _authService.CreateNewToken(identity);
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return new JsonResult(new Dictionary<string, string>() { { "token", encodedJwt } });
+            return Ok(new Dictionary<string, string>() { { "token", encodedJwt } });
         }
-        
+
 
         [Authorize]
         [HttpPost("logout")]

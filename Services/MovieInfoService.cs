@@ -27,7 +27,7 @@ namespace MovieCatalogAPI.Services
 
         public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId)
         {
-            var movie = await _dbContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == movieId);
+            var movie = await _dbContext.Movies.Include(x => x.Genres).Include(x => x.Reviews).FirstOrDefaultAsync(x => x.Id == movieId);
             if (movie == null)
             {
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
@@ -56,7 +56,7 @@ namespace MovieCatalogAPI.Services
         public List<MovieElementModel> GetMovieElements(int currentPage)
         {
             return _dbContext.Movies.OrderBy(x => x.Year).Skip((currentPage - 1) * PaginationData.MaxItemsPerPage)
-                .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).ToList()
+                .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).Include(x=>x.Reviews).ToList()
                 .Select(x => new MovieElementModel
                 {
                     Id = x.Id,
@@ -65,7 +65,7 @@ namespace MovieCatalogAPI.Services
                     Year = x.Year,
                     Country = x.Country,
                     Genres = x.Genres?.Select(g => new GenreModel { Id = g.Id, Name = g.Name }).ToList(),
-                    Reviews = x.Reviews != null ? x.Reviews.Select(r => r.ToShort()).ToList() : null
+                    Reviews = x.Reviews?.Select(r => r.ToShort()).ToList()
                 }).ToList();
         }
     }

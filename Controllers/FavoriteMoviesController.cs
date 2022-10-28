@@ -21,24 +21,46 @@ namespace MovieCatalogAPI.Controllers
         {
             try
             {
-                return Ok(await _favoriteMoviesService.GetMovies(User.Identity.Name));
+                var movieList = await _favoriteMoviesService.GetMovies(User.Identity.Name);
+                return Ok(movieList);
+            }
+            catch (NullReferenceException)
+            {
+                return NotFound($"User {User.Identity.Name} was not found");
             }
             catch
             {
-                return Problem(statusCode:500, title: "Something went wrong");
+                return Problem(statusCode: 500, title: "Something went wrong");
             }
-           
-            throw new NotImplementedException();
         }
         [HttpPost("{id}/add"), Authorize]
-        public async Task<IActionResult> AddMovie()
+        public async Task<IActionResult> AddMovie([FromRoute] Guid id)
         {
-            throw new NotImplementedException();
+            if (!await _favoriteMoviesService.IfMovieExists(id))
+            {
+                return NotFound($"Movie with id {id} does not exist");
+            }
+            if (await _favoriteMoviesService.IfUserHasMovie(User.Identity.Name, id))
+            {
+                return BadRequest("User already has this movie in favorite");
+            }
+            await _favoriteMoviesService.AddMovie(User.Identity.Name, id);
+            return Ok();
         }
+
         [HttpDelete("{id}/delete"), Authorize]
-        public async Task<IActionResult> DeleteMovie()
+        public async Task<IActionResult> DeleteMovie([FromRoute] Guid id)
         {
-            throw new NotImplementedException();
+            if (!await _favoriteMoviesService.IfMovieExists(id))
+            {
+                return NotFound($"Movie with id {id} does not exist");
+            }
+            if (!await _favoriteMoviesService.IfUserHasMovie(User.Identity.Name, id))
+            {
+                return BadRequest("User does not have this movie in favorites");
+            }
+            await _favoriteMoviesService.RemoveMovie(User.Identity.Name, id);
+            return Ok();
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class MoviesList
     {
-        public ICollection<MovieElementModel>? Movies;
+        public ICollection<MovieElementModel>? Movies { get; set;}
     }
 }

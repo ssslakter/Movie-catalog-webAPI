@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MovieCatalogAPI.Migrations
 {
     [DbContext(typeof(MovieDBContext))]
-    [Migration("20221026174859_ChangeMovieModel")]
-    partial class ChangeMovieModel
+    [Migration("20221028122153_AddRoleToUser")]
+    partial class AddRoleToUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -154,6 +154,10 @@ namespace MovieCatalogAPI.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -40,7 +40,8 @@ namespace MovieCatalogAPI.Services
                 Name = userData.Name,
                 Email = userData.Email,
                 BirthDate = userData.BirthDate.ToUniversalTime(),
-                Gender = userData.Gender
+                Gender = userData.Gender,
+                Role="user"
             };
             currUser.PasswordHash = _passwordHasher.HashPassword(currUser, userData.Password);
             await _dbContext.Users.AddAsync(currUser);

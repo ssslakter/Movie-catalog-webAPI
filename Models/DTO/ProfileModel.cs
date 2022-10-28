@@ -10,6 +10,7 @@ namespace MovieCatalogAPI.Models.DTO
         public string Email { get; set; }
         public string? AvatarLink { get; set; }
         public string Name { get; set; }
+        [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
         public Gender? Gender { get; set; }
 

@@ -66,7 +66,7 @@ namespace MovieCatalogAPI.Services
 
         async Task<User?> IReviewService.GetUser(string? userName)
         {
-            return await _dbContext.Users.Include(x => x.Reviews).FirstOrDefaultAsync(x => x.UserName == userName);
+            return await _dbContext.Users.Include(x => x.Reviews)?.ThenInclude(x=>x.Movie).FirstOrDefaultAsync(x => x.UserName == userName);
         }
     }
 }

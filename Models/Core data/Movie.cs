@@ -18,7 +18,7 @@ namespace MovieCatalogAPI.Models
         public int? Budget { get; set; }
         public int? Fees { get; set; }
         public int AgeLimit { get; set; }
-        public ICollection<Review>? Reviews { get; set; }
+        public ICollection<Review> Reviews { get; set; }
         public ICollection<User>? favoriteForUsers { get; set; }
     }
 }

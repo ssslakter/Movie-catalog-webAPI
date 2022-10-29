@@ -20,12 +20,21 @@ namespace MovieCatalogAPI.Models
         [NotMapped]
         public UserShort Author { get; set; }
 
-
         public ReviewShort ToShort()
         {
             return new ReviewShort(Rating)
             {
                 Id = Id
+            };
+        }        
+
+        public void AddAuthorShort()
+        {
+            Author = new UserShort
+            {
+                UserID = AuthorData.Id,
+                UserName = AuthorData.UserName,
+                Avatar = AuthorData.AvatarLink
             };
         }
     }

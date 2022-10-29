@@ -78,6 +78,7 @@ builder.Services.AddScoped<IMovieDataService,MovieDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IMovieConverterService, MovieConverterService>();
 builder.Services.AddScoped<IFavoriteMoviesService,FavoriteMoviesService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Logging.AddConsole();
 var app = builder.Build();
 

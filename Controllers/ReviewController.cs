@@ -5,7 +5,7 @@ using MovieCatalogAPI.Services;
 
 namespace MovieCatalogAPI.Controllers
 {
-    [Route("api/review")]
+    [Route("api/movie")]
     [ApiController]
     public class ReviewController : Controller
     {
@@ -31,7 +31,7 @@ namespace MovieCatalogAPI.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return BadRequest($"Movie with id {movieId} was not found");
+                return NotFound($"Movie with id {movieId} was not found");
             }
             catch (ArgumentException)
             {

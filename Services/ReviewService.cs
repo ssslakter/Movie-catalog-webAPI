@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using MovieCatalogAPI.Models;
 
 namespace MovieCatalogAPI.Services
@@ -7,8 +8,9 @@ namespace MovieCatalogAPI.Services
     {
         Task<User?> GetUser(string? userName);
         Task AddReview(User user, Guid movieId, ReviewModifyModel reviewModel);
-        Task EditReview(User user, Guid movieId, ReviewModifyModel reviewModel);
-        Task DeleteReview(User user, Guid movieId);
+        Task EditReview(Review review, ReviewModifyModel reviewModel);
+        Task DeleteReview(Review review);
+        Task<Review> FindReview(Guid movieId, Guid reviewId);
     }
     public class ReviewService : IReviewService
     {
@@ -26,12 +28,12 @@ namespace MovieCatalogAPI.Services
             var movie = await _dbContext.Movies.Include(x => x.Reviews).FirstOrDefaultAsync(x => x.Id == movieId);
             if (movie == null)
             {
-                _logger.LogWarning($"Film with id {movieId} seem does not exist");
+                _logger.LogInformation($"Movie with id {movieId} seem does not exist");
                 throw new KeyNotFoundException();
             }
             if (user.Reviews.Any(x => x.Movie.Id == movieId))
             {
-                _logger.LogInformation("User tried to add review that already exits");
+                _logger.LogInformation("User tried to add review that already exists");
                 throw new ArgumentException();
             }
             var review = new Review
@@ -41,32 +43,47 @@ namespace MovieCatalogAPI.Services
                 Rating = reviewModel.Rating,
                 IsAnonymous = reviewModel.IsAnonymous,
                 CreateDateTime = DateTime.UtcNow,
-                AuthorData = user,
-                Author = new UserShort
-                {
-                    UserID = user.Id,
-                    Avatar = user.AvatarLink,
-                    UserName = user.UserName
-                }
+                AuthorData = user
             };
             movie.Reviews.Add(review);
             user.Reviews.Add(review);
             await _dbContext.SaveChangesAsync();
         }
 
-        Task IReviewService.DeleteReview(User user, Guid movieId)
+        async Task IReviewService.DeleteReview(Review review)
         {
-            throw new NotImplementedException();
+            _dbContext.Reviews.Remove(review);
+            await _dbContext.SaveChangesAsync();
         }
 
-        Task IReviewService.EditReview(User user, Guid movieId, ReviewModifyModel reviewModel)
+        async Task IReviewService.EditReview(Review review, ReviewModifyModel reviewModel)
         {
-            throw new NotImplementedException();
+            review.ReviewText = reviewModel.ReviewText;
+            review.Rating = reviewModel.Rating;
+            review.IsAnonymous = reviewModel.IsAnonymous;
+            await _dbContext.SaveChangesAsync();
         }
 
         async Task<User?> IReviewService.GetUser(string? userName)
         {
-            return await _dbContext.Users.Include(x => x.Reviews)?.ThenInclude(x=>x.Movie).FirstOrDefaultAsync(x => x.UserName == userName);
+            return await _dbContext.Users.Include(x => x.Reviews)?.ThenInclude(x => x.Movie).FirstOrDefaultAsync(x => x.UserName == userName);
+        }
+
+        public async Task<Review> FindReview(Guid movieId, Guid reviewId)
+        {
+            var movie = await _dbContext.Movies.Include(x => x.Reviews).FirstOrDefaultAsync(x => x.Id == movieId);
+            if (movie == null)
+            {
+                _logger.LogInformation($"Movie with id {movieId} seem does not exist");
+                throw new KeyNotFoundException();
+            }
+            var review = await _dbContext.Reviews.Include(x => x.Movie).Include(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == reviewId);
+            if (review == null || review.Movie.Id != movieId)
+            {
+                _logger.LogInformation($"Movie with id {movieId} does not have review with id {reviewId}");
+                throw new ArgumentException();
+            }
+            return review;
         }
     }
 }

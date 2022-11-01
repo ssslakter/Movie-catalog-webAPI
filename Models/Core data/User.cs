@@ -27,5 +27,6 @@ namespace MovieCatalogAPI.Models
         public string? AvatarLink { get; set; }
         public ICollection<Movie> FavoriteMovies { get; set; }
         public ICollection<Review>? Reviews { get; set; }
+        public string Role { get; set; }
     }
 }

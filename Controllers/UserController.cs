@@ -28,8 +28,17 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> Put(ProfileModel profile)
         {
-            //TODO add exceptions
+            var current = await _userService.GetUserProfile(User.Identity.Name);
+            if (profile.UserName != current.UserName)
+            {
+                return BadRequest("You are not allowed to change userName");
+            }
+            if (profile.Email != current.Email && await _userService.IsEmailTaken(profile.Email))
+            {
+                return BadRequest($"Email {profile.Email} is already taken");
+            }
             await _userService.UpdateUserProfile(profile);
+
             return Ok();
         }
     }

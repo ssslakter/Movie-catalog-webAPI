@@ -37,5 +37,15 @@ namespace MovieCatalogAPI.Models
                 Avatar = AuthorData.AvatarLink
             };
         }
+
+        public void AddAuthorShort()
+        {
+            Author = new UserShort
+            {
+                UserID = AuthorData.Id,
+                UserName = AuthorData.UserName,
+                Avatar = AuthorData.AvatarLink
+            };
+        }
     }
 }

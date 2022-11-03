@@ -38,7 +38,7 @@ namespace MovieCatalogAPI.Controllers
         {
             try
             {
-                var details = await _movieInfoService.GetMovieDetails(id);
+                var details = await _movieInfoService.GetMovieDetails(id,User.Identity?.Name);
                 return Ok(details);
             }
             catch(KeyNotFoundException e)

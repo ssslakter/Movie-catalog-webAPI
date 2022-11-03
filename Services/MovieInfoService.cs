@@ -10,7 +10,7 @@ namespace MovieCatalogAPI.Services
     public interface IMovieInfoService
     {
         IEnumerable<MovieElementModel> GetMovieElements(int currentPage);
-        Task<MovieDetailsModel> GetMovieDetails(Guid movieId);
+        Task<MovieDetailsModel> GetMovieDetails(Guid movieId, string? userName);
     }
 
     public class MovieInfoService : IMovieInfoService
@@ -27,18 +27,31 @@ namespace MovieCatalogAPI.Services
             _movieConverterService = movieConverterService;
         }
 
-        public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId)
-        {
+        public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId, string? userName)
+        {           
             var movie = await _dbContext.Movies.Include(x => x.Genres).Include(x => x.Reviews).ThenInclude(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == movieId);
             if (movie == null)
             {
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
                 throw new KeyNotFoundException($"Not found movie with id {movieId}");
             }
+            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             foreach (var review in movie.Reviews)
             {
-                review.AddAuthorShort();
-            }
+                if (!review.IsAnonymous)
+                {
+                    review.AddAuthorShort();
+                }
+                else
+                {
+                    if(user != null && review.AuthorData.Id == user.Id)
+                    {
+                        review.AddAuthorShort();
+                        continue;
+                    }
+                    review.Author = null;                   
+                }                
+            }            
             return _movieConverterService.MoviesToMovieDetails(movie);
         }
 

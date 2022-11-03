@@ -18,7 +18,7 @@ namespace MovieCatalogAPI.Models
         [Required, JsonIgnore]
         public User AuthorData { get; set; }
         [NotMapped]
-        public UserShort Author { get; set; }
+        public UserShort? Author { get; set; }
 
         public ReviewShort ToShort()
         {

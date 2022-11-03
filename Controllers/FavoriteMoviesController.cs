@@ -10,15 +10,21 @@ namespace MovieCatalogAPI.Controllers
     public class FavoriteMoviesController : ControllerBase
     {
         private readonly IFavoriteMoviesService _favoriteMoviesService;
+        private readonly ITokenCacheService _tokenCacheService;
 
-        public FavoriteMoviesController(IFavoriteMoviesService favoriteMoviesService)
+        public FavoriteMoviesController(IFavoriteMoviesService favoriteMoviesService, ITokenCacheService tokenCacheService)
         {
+            _tokenCacheService = tokenCacheService;
             _favoriteMoviesService = favoriteMoviesService;
         }
 
         [HttpGet, Authorize]
         public async Task<IActionResult> Get()
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             try
             {
                 var movieList = await _favoriteMoviesService.GetMovies(User.Identity.Name);
@@ -36,6 +42,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpPost("{id}/add"), Authorize]
         public async Task<IActionResult> AddMovie([FromRoute] Guid id)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             if (!await _favoriteMoviesService.IfMovieExists(id))
             {
                 return NotFound($"Movie with id {id} does not exist");
@@ -51,6 +61,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpDelete("{id}/delete"), Authorize]
         public async Task<IActionResult> DeleteMovie([FromRoute] Guid id)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             if (!await _favoriteMoviesService.IfMovieExists(id))
             {
                 return NotFound($"Movie with id {id} does not exist");

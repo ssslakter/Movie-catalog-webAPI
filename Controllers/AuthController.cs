@@ -56,11 +56,10 @@ namespace MovieCatalogAPI.Controllers
 
         [Authorize]
         [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            //Возможно костыль
-            Response.Headers.Remove("Authorization");
-            return new JsonResult(new Dictionary<string, string>() { { "token", "" }, { "message", "Logged Out" } });
+        public async Task<IActionResult> Logout()
+        {           
+            await _authService.Logout(Response.Headers.Authorization);
+            return Ok(new Dictionary<string, string>() { { "token", "" }, { "message", "Logged Out" } });
         }
     }
 

@@ -11,6 +11,7 @@ namespace MovieCatalogAPI.Services
 {
     public interface IAuthService
     {
+        public Task Logout(string token);
         public Task AddNewUserToDB(UserRegisterModel userRM);
         public Task<bool> IfUserExists(UserRegisterModel userRM);
         public Task<ClaimsIdentity> GetIdentity(string userName, string password);
@@ -20,9 +21,11 @@ namespace MovieCatalogAPI.Services
     {
         private readonly MovieDBContext _dbContext;
         private readonly PasswordHasher<User> _passwordHasher;
+        private readonly ITokenCacheService _tokenCacheService;
 
-        public AuthService(MovieDBContext dbContext)
+        public AuthService(MovieDBContext dbContext, ITokenCacheService tokenCacheService)
         {
+            _tokenCacheService = tokenCacheService;
             _passwordHasher = new PasswordHasher<User>();
             _dbContext = dbContext;
         }
@@ -81,6 +84,11 @@ namespace MovieCatalogAPI.Services
                 expires: now.AddMinutes(JwtConfigurations.Lifetime),
                 signingCredentials: new SigningCredentials(JwtConfigurations.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             return jwt;
+        }
+
+        public async Task Logout(string token)
+        {
+            await _tokenCacheService.AddToken(token);
         }
     }
 }

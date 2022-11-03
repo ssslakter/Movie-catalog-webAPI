@@ -10,15 +10,21 @@ namespace MovieCatalogAPI.Controllers
     public class ReviewController : Controller
     {
         private readonly IReviewService _reviewService;
+        private readonly ITokenCacheService _tokenCacheService;
 
-        public ReviewController(IReviewService reviewService)
+        public ReviewController(IReviewService reviewService, ITokenCacheService tokenCacheService)
         {
+            _tokenCacheService = tokenCacheService;
             _reviewService = reviewService;
         }
 
         [HttpPost("{movieId}/review/add"), Authorize]
         public async Task<IActionResult> AddReview([FromRoute] Guid movieId, ReviewModifyModel review)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             var user = await _reviewService.GetUser(User.Identity.Name);
             if (user == null)
             {
@@ -46,6 +52,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("{movieId}/review/{id}/edit"), Authorize]
         public async Task<IActionResult> EditReview([FromRoute] Guid movieId, [FromRoute] Guid id, ReviewModifyModel review)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             var response = await FindReview(movieId, id);
             if (response.StatusCode != 200)
             {
@@ -68,6 +78,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpDelete("{movieId}/review/{id}/delete"), Authorize]
         public async Task<IActionResult> DeleteReview([FromRoute] Guid movieId, [FromRoute] Guid id)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            {
+                return Unauthorized("Token is expired");
+            }
             var response = await FindReview(movieId, id);
             if (response.StatusCode != 200)
             {

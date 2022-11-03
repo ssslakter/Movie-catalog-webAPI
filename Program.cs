@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MovieCatalogAPI.Configurations;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
-builder.Services.AddSwaggerGen(option => {
+builder.Services.AddSwaggerGen(option =>
+{
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "MovieCatalogApi", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -69,16 +72,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //DataBase
 var connection = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<MovieDBContext>(opts => opts.UseNpgsql(connection));
+var redis = builder.Configuration.GetConnectionString("Redis");
+builder.Services.AddStackExchangeRedisCache(opts => { opts.Configuration = redis;opts.InstanceName = "JwtCache"; });
 //Https client
 builder.Services.AddHttpClient();
 //Services
 builder.Services.AddScoped<IMovieInfoService, MovieInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IMovieDataService,MovieDataService>();
+builder.Services.AddScoped<IMovieDataService, MovieDataService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IMovieConverterService, MovieConverterService>();
-builder.Services.AddScoped<IFavoriteMoviesService,FavoriteMoviesService>();
+builder.Services.AddScoped<IFavoriteMoviesService, FavoriteMoviesService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddSingleton<IDistributedCache, RedisCache>();
+builder.Services.AddScoped<ITokenCacheService, TokenCacheService>();
 builder.Logging.AddConsole();
 var app = builder.Build();
 

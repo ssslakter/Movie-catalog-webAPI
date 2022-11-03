@@ -41,13 +41,13 @@ namespace MovieCatalogAPI.Controllers
                 var details = await _movieInfoService.GetMovieDetails(id);
                 return Ok(details);
             }
-            catch(KeyNotFoundException e)
+            catch(KeyNotFoundException)
             {
-                return NotFound(e.Message);
+                return NotFound("Movie with this id does not exist");
             }
             catch
             {
-                return StatusCode(500);
+                return Problem(statusCode: 500, title: "Something went wrong");
             }
 
         }

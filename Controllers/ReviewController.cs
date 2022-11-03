@@ -28,7 +28,7 @@ namespace MovieCatalogAPI.Controllers
             var user = await _reviewService.GetUser(User.Identity.Name);
             if (user == null)
             {
-                return Unauthorized();
+                return Unauthorized("Currecnt user not found");
             }
             try
             {

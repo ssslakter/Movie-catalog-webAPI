@@ -22,9 +22,11 @@ namespace MovieCatalogAPI.Services
         private readonly MovieDBContext _dbContext;
         private readonly PasswordHasher<User> _passwordHasher;
         private readonly ITokenCacheService _tokenCacheService;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(MovieDBContext dbContext, ITokenCacheService tokenCacheService)
+        public AuthService(MovieDBContext dbContext, ITokenCacheService tokenCacheService, ILogger<AuthService> logger)
         {
+            _logger = logger;
             _tokenCacheService = tokenCacheService;
             _passwordHasher = new PasswordHasher<User>();
             _dbContext = dbContext;
@@ -49,6 +51,7 @@ namespace MovieCatalogAPI.Services
             currUser.PasswordHash = _passwordHasher.HashPassword(currUser, userData.Password);
             await _dbContext.Users.AddAsync(currUser);
             await _dbContext.SaveChangesAsync();
+            _logger.LogInformation("User succesfully added to database");
         }
 
         public async Task<ClaimsIdentity> GetIdentity(string userName, string password)
@@ -87,8 +90,9 @@ namespace MovieCatalogAPI.Services
         }
 
         public async Task Logout(string token)
-        {
+        {           
             await _tokenCacheService.AddToken(token);
+            _logger.LogInformation("Token correctly marked as expired");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 
@@ -21,7 +22,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpPost("{movieId}/review/add"), Authorize]
         public async Task<IActionResult> AddReview([FromRoute] Guid movieId, ReviewModifyModel review)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
             {
                 return Unauthorized("Token is expired");
             }
@@ -52,7 +53,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("{movieId}/review/{id}/edit"), Authorize]
         public async Task<IActionResult> EditReview([FromRoute] Guid movieId, [FromRoute] Guid id, ReviewModifyModel review)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
             {
                 return Unauthorized("Token is expired");
             }
@@ -78,7 +79,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpDelete("{movieId}/review/{id}/delete"), Authorize]
         public async Task<IActionResult> DeleteReview([FromRoute] Guid movieId, [FromRoute] Guid id)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
             {
                 return Unauthorized("Token is expired");
             }

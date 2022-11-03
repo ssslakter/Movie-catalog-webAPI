@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -57,9 +58,17 @@ namespace MovieCatalogAPI.Controllers
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
-        {           
-            await _authService.Logout(Response.Headers.Authorization);
-            return Ok(new Dictionary<string, string>() { { "token", "" }, { "message", "Logged Out" } });
+        {
+            try
+            {
+                await _authService.Logout(Request.Headers[HeaderNames.Authorization]);
+                return Ok(new Dictionary<string, string>() { { "token", "" }, { "message", "Logged Out" } });
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }
+
         }
     }
 

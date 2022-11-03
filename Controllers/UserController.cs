@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
 
@@ -22,7 +23,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> Get()
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
             {
                 return Unauthorized("Token is expired");
             }
@@ -34,7 +35,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> Put(ProfileModel profile)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers.Authorization))
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
             {
                 return Unauthorized("Token is expired");
             }

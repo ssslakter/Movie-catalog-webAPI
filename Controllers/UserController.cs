@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
 
@@ -10,9 +11,11 @@ namespace MovieCatalogAPI.Controllers
     public class UserController : Controller
     {
         private IUserService _userService;
+        private readonly ITokenCacheService _tokenCacheService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ITokenCacheService tokenCacheService)
         {
+            _tokenCacheService = tokenCacheService;
             _userService = userService;
         }
 
@@ -20,6 +23,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> Get()
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            {
+                return Unauthorized("Token is expired");
+            }
             var profile = await _userService.GetUserProfile(User.Identity.Name);
             return Ok(profile);
         }
@@ -28,6 +35,10 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> Put(ProfileModel profile)
         {
+            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            {
+                return Unauthorized("Token is expired");
+            }
             var current = await _userService.GetUserProfile(User.Identity.Name);
             if (profile.UserName != current.UserName)
             {

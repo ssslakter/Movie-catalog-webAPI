@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "MovieCatalogApi", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "MovieCatalogAPI"});
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -72,10 +72,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 //DataBase
 var connection = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<MovieDBContext>(opts => opts.UseNpgsql(connection));
+
+//Redis for tokens
 var redis = builder.Configuration.GetConnectionString("Redis");
 builder.Services.AddStackExchangeRedisCache(opts => { opts.Configuration = redis;opts.InstanceName = "JwtCache"; });
+
 //Https client
 builder.Services.AddHttpClient();
+
 //Services
 builder.Services.AddScoped<IMovieInfoService, MovieInfoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

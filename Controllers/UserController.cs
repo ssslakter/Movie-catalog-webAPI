@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
 
@@ -27,8 +28,19 @@ namespace MovieCatalogAPI.Controllers
             {
                 return Unauthorized("Token is expired");
             }
-            var profile = await _userService.GetUserProfile(User.Identity.Name);
-            return Ok(profile);
+            try
+            {
+                var profile = await _userService.GetUserProfile(User.Identity.Name);
+                return Ok(profile);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }
         }
 
         [Authorize]
@@ -39,18 +51,23 @@ namespace MovieCatalogAPI.Controllers
             {
                 return Unauthorized("Token is expired");
             }
-            var current = await _userService.GetUserProfile(User.Identity.Name);
-            if (profile.UserName != current.UserName)
+            try
             {
-                return BadRequest("You are not allowed to change userName");
+                await _userService.UpdateUserProfile(User.Identity.Name, profile);
+                return Ok();
             }
-            if (profile.Email != current.Email && await _userService.IsEmailTaken(profile.Email))
+            catch (NotFoundException e)
             {
-                return BadRequest($"Email {profile.Email} is already taken");
+                return NotFound(e.Message);
             }
-            await _userService.UpdateUserProfile(profile);
-
-            return Ok();
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }            
         }
     }
 }

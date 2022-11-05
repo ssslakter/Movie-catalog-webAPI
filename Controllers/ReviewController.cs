@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 
@@ -36,7 +37,7 @@ namespace MovieCatalogAPI.Controllers
                 await _reviewService.AddReview(user, movieId, review);
                 return Ok();
             }
-            catch (KeyNotFoundException)
+            catch (NotFoundException)
             {
                 return NotFound($"Movie with id {movieId} was not found");
             }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieCatalogAPI.Configurations;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.Core_data;
 using MovieCatalogAPI.Models.DTO;
@@ -33,7 +34,7 @@ namespace MovieCatalogAPI.Services
             if (movie == null)
             {
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
-                throw new KeyNotFoundException($"Not found movie with id {movieId}");
+                throw new NotFoundException($"Not found movie with id {movieId}");
             }
             var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             foreach (var review in movie.Reviews)

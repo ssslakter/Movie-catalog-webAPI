@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 
@@ -31,7 +32,7 @@ namespace MovieCatalogAPI.Controllers
                 var movieList = await _favoriteMoviesService.GetMovies(User.Identity.Name);
                 return Ok(movieList);
             }
-            catch (NullReferenceException)
+            catch (NotFoundException)
             {
                 return NotFound($"User {User.Identity.Name} was not found");
             }

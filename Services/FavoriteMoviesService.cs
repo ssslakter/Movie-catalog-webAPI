@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using System.ComponentModel;
 
@@ -39,7 +40,7 @@ namespace MovieCatalogAPI.Services
             var user = await GetUser(userName);
             if (user == null)
             {
-                throw new NullReferenceException();
+                throw new NotFoundException();
             }
             if (user.FavoriteMovies == null)
             {
@@ -56,7 +57,7 @@ namespace MovieCatalogAPI.Services
             var user = await GetUser(userName);
             if (user == null)
             {
-                throw new NullReferenceException();
+                throw new NotFoundException();
             }
             var movie = await _dbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
             user.FavoriteMovies.Remove(movie);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieCatalogAPI.Configurations;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
@@ -41,7 +42,7 @@ namespace MovieCatalogAPI.Controllers
                 var details = await _movieInfoService.GetMovieDetails(id,User.Identity?.Name);
                 return Ok(details);
             }
-            catch(KeyNotFoundException)
+            catch(NotFoundException)
             {
                 return NotFound("Movie with this id does not exist");
             }

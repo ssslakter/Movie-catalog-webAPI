@@ -60,10 +60,10 @@ namespace MovieCatalogAPI.Controllers
             {
                 return NotFound(e.Message);
             }
-            catch (ArgumentException e)
+            catch (PermissionDeniedExeption e)
             {
                 return BadRequest(e.Message);
-            }
+            }            
             catch
             {
                 return Problem(statusCode: 500, title: "Something went wrong");

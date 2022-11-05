@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 
 namespace MovieCatalogAPI.Services
@@ -29,7 +30,7 @@ namespace MovieCatalogAPI.Services
             if (movie == null)
             {
                 _logger.LogInformation($"Movie with id {movieId} seem does not exist");
-                throw new KeyNotFoundException();
+                throw new NotFoundException();
             }
             if (user.Reviews.Any(x => x.Movie.Id == movieId))
             {
@@ -75,7 +76,7 @@ namespace MovieCatalogAPI.Services
             if (movie == null)
             {
                 _logger.LogInformation($"Movie with id {movieId} seem does not exist");
-                throw new KeyNotFoundException();
+                throw new NotFoundException();
             }
             var review = await _dbContext.Reviews.Include(x => x.Movie).Include(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == reviewId);
             if (review == null || review.Movie.Id != movieId)

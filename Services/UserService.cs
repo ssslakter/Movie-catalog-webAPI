@@ -41,12 +41,12 @@ namespace MovieCatalogAPI.Services
             if (user.UserName != profile.UserName)
             {
                 _logger.LogInformation("User tried to change his userName");
-                throw new ArgumentException("You are not allowed to change userName");
+                throw new PermissionDeniedExeption("You are not allowed to change userName");
             }
             if(user.Id != profile.Id)
             {
                 _logger.LogInformation("User tried to change his userName");
-                throw new ArgumentException("You are only allowed to change your profile");
+                throw new PermissionDeniedExeption("You are only allowed to change your profile");
             }
             user.BirthDate = profile.BirthDate.ToUniversalTime();
             user.AvatarLink = profile.AvatarLink;
@@ -59,7 +59,7 @@ namespace MovieCatalogAPI.Services
             else
             {
                 _logger.LogInformation("User tried to set already used email");
-                throw new ArgumentException($"Email {profile.Email} is already taken");
+                throw new PermissionDeniedExeption($"Email {profile.Email} is already taken");
             }
 
             await _dbContext.SaveChangesAsync();

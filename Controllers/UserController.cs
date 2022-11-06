@@ -24,10 +24,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> Get()
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
+            catch { }
             try
             {
                 var profile = await _userService.GetUserProfile(User.Identity.Name);
@@ -47,10 +51,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> Put(ProfileModel profile)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
+            catch { }
             try
             {
                 await _userService.UpdateUserProfile(User.Identity.Name, profile);

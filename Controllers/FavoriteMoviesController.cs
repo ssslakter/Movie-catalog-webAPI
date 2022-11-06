@@ -23,10 +23,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet, Authorize]
         public async Task<IActionResult> Get()
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
+            catch { }
             try
             {
                 var movieList = await _favoriteMoviesService.GetMovies(User.Identity.Name);
@@ -44,10 +48,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpPost("{id}/add"), Authorize]
         public async Task<IActionResult> AddMovie([FromRoute] Guid id)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
+            catch { }
             if (!await _favoriteMoviesService.IfMovieExists(id))
             {
                 return NotFound($"Movie with id {id} does not exist");
@@ -63,10 +71,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpDelete("{id}/delete"), Authorize]
         public async Task<IActionResult> DeleteMovie([FromRoute] Guid id)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
+            catch { }
             if (!await _favoriteMoviesService.IfMovieExists(id))
             {
                 return NotFound($"Movie with id {id} does not exist");

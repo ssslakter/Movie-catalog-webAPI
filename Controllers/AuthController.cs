@@ -13,10 +13,12 @@ namespace MovieCatalogAPI.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ITokenCacheService _tokenCacheService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ITokenCacheService tokenCacheService)
         {
             _authService = authService;
+            _tokenCacheService = tokenCacheService;
         }
 
         [HttpPost("register")]
@@ -59,6 +61,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
+            try
+            {
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
+            }
+            catch { }
             try
             {
                 await _authService.Logout(Request.Headers[HeaderNames.Authorization]);

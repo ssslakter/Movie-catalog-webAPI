@@ -23,27 +23,27 @@ namespace MovieCatalogAPI.Controllers
         [HttpPost("{movieId}/review/add"), Authorize]
         public async Task<IActionResult> AddReview([FromRoute] Guid movieId, ReviewModifyModel review)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
-            {
-                return Unauthorized("Token is expired");
-            }
-            var user = await _reviewService.GetUser(User.Identity.Name);
-            if (user == null)
-            {
-                return Unauthorized("Currecnt user not found");
-            }
             try
             {
-                await _reviewService.AddReview(user, movieId, review);
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
+            }
+            catch { }           
+            
+            try
+            {
+                await _reviewService.AddReview(User.Identity.Name, movieId, review);
                 return Ok();
             }
-            catch (NotFoundException)
+            catch (NotFoundException e)
             {
-                return NotFound($"Movie with id {movieId} was not found");
+                return NotFound(e.Message);
             }
-            catch (ArgumentException)
+            catch (ArgumentException e)
             {
-                return BadRequest("Review on this movie already exists");
+                return BadRequest(e.Message);
             }
             catch
             {
@@ -54,70 +54,57 @@ namespace MovieCatalogAPI.Controllers
         [HttpPut("{movieId}/review/{id}/edit"), Authorize]
         public async Task<IActionResult> EditReview([FromRoute] Guid movieId, [FromRoute] Guid id, ReviewModifyModel review)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+            try
             {
-                return Unauthorized("Token is expired");
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
-            var response = await FindReview(movieId, id);
-            if (response.StatusCode != 200)
+            catch { }
+            try
             {
-                return response;
+                var rev = await _reviewService.FindReview(movieId, id);
+                await _reviewService.EditReview(User.Identity.Name, rev, review);
+                return Ok();
             }
-            var user = await _reviewService.GetUser(User.Identity.Name);
-            if (user == null)
+            catch (NotFoundException e)
             {
-                return Unauthorized();
+                return NotFound(e.Message);
             }
-            var rev = response.Value as Review;
-            if (user.Id != rev?.AuthorData.Id)
+            catch (PermissionDeniedExeption e)
             {
-                return BadRequest("You're trying to edit review of another user");
+                return BadRequest(e.Message);
             }
-
-            await _reviewService.EditReview(rev, review);
-            return Ok();
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }
         }
         [HttpDelete("{movieId}/review/{id}/delete"), Authorize]
         public async Task<IActionResult> DeleteReview([FromRoute] Guid movieId, [FromRoute] Guid id)
         {
-            if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
-            {
-                return Unauthorized("Token is expired");
-            }
-            var response = await FindReview(movieId, id);
-            if (response.StatusCode != 200)
-            {
-                return response;
-            }
-            var user = await _reviewService.GetUser(User.Identity.Name);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            var rev = response.Value as Review;
-            if (user.Id != rev?.AuthorData.Id)
-            {
-                return BadRequest("You're trying to delete review of another user");
-            }
-
-            await _reviewService.DeleteReview(rev);
-            return Ok();
-        }
-
-        private async Task<ObjectResult> FindReview(Guid movieId, Guid reviewId)
-        {
             try
             {
-                var review = await _reviewService.FindReview(movieId, reviewId);
-                return Ok(review);
+                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
+                {
+                    return Unauthorized("Token is expired");
+                }
             }
-            catch (KeyNotFoundException)
+            catch { }
+            try
             {
-                return NotFound($"Movie with id {movieId} was not found");
+                var rev = await _reviewService.FindReview(movieId, id);
+                await _reviewService.DeleteReview(User.Identity.Name, rev);
+                return Ok();
             }
-            catch (ArgumentException)
+            catch (NotFoundException e)
             {
-                return NotFound($"Movie with id {movieId} does not have review with id {reviewId}");
+                return NotFound(e.Message);
+            }
+            catch (PermissionDeniedExeption e)
+            {
+                return BadRequest(e.Message);
             }
             catch
             {

@@ -56,16 +56,23 @@ namespace MovieCatalogAPI.Controllers
                 }
             }
             catch { }
-            if (!await _favoriteMoviesService.IfMovieExists(id))
+            try
             {
-                return NotFound($"Movie with id {id} does not exist");
+                await _favoriteMoviesService.AddMovie(User.Identity.Name, id);
+                return Ok();
             }
-            if (await _favoriteMoviesService.IfUserHasMovie(User.Identity.Name, id))
+            catch(ArgumentException e)
             {
-                return BadRequest("User already has this movie in favorite");
+                return BadRequest(e.Message);
             }
-            await _favoriteMoviesService.AddMovie(User.Identity.Name, id);
-            return Ok();
+            catch(NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }
         }
 
         [HttpDelete("{id}/delete"), Authorize]
@@ -79,16 +86,23 @@ namespace MovieCatalogAPI.Controllers
                 }
             }
             catch { }
-            if (!await _favoriteMoviesService.IfMovieExists(id))
+            try
             {
-                return NotFound($"Movie with id {id} does not exist");
+                await _favoriteMoviesService.RemoveMovie(User.Identity.Name, id);
+                return Ok();
             }
-            if (!await _favoriteMoviesService.IfUserHasMovie(User.Identity.Name, id))
+            catch (ArgumentException e)
             {
-                return BadRequest("User does not have this movie in favorites");
+                return BadRequest(e.Message);
             }
-            await _favoriteMoviesService.RemoveMovie(User.Identity.Name, id);
-            return Ok();
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch
+            {
+                return Problem(statusCode: 500, title: "Something went wrong");
+            }            
         }
     }
 }

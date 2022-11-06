@@ -10,8 +10,6 @@ namespace MovieCatalogAPI.Services
         Task<MoviesList> GetMovies(string userName);
         Task AddMovie(string userName, Guid movieId);
         Task RemoveMovie(string userName, Guid movieId);
-        Task<bool> IfMovieExists(Guid movieId);
-        Task<bool> IfUserHasMovie(string userName, Guid movieId);
     }
     public class FavoriteMoviesService : IFavoriteMoviesService
     {
@@ -29,10 +27,24 @@ namespace MovieCatalogAPI.Services
         async Task IFavoriteMoviesService.AddMovie(string userName, Guid movieId)
         {
             var user = await GetUser(userName);
+            if (user == null)
+            {
+                throw new NotFoundException($"User {userName} was not found");
+            }
+            if (!await _dbContext.Movies.AnyAsync(x => x.Id == movieId))
+            {
+                throw new NotFoundException($"Movie with id {movieId} does not exist");
+            }
+            if (user.FavoriteMovies.Any(x => x.Id == movieId))
+            {
+                _logger.LogInformation($"User {userName} tried to to add movie whith id {movieId} to favorite twice");
+                throw new ArgumentException("User already has this movie in favorite");
+            }
+
             var movie = await _dbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
             user.FavoriteMovies.Add(movie);
-            _logger.LogInformation("Movie was succesefully added to favorite");
             await _dbContext.SaveChangesAsync();
+            _logger.LogInformation("Movie was succesefully added to favorite");
         }
 
         async Task<MoviesList> IFavoriteMoviesService.GetMovies(string userName)
@@ -40,7 +52,7 @@ namespace MovieCatalogAPI.Services
             var user = await GetUser(userName);
             if (user == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException($"User {userName} was not found");
             }
             if (user.FavoriteMovies == null)
             {
@@ -57,18 +69,27 @@ namespace MovieCatalogAPI.Services
             var user = await GetUser(userName);
             if (user == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException($"User {userName} was not found");
             }
+            if (!await _dbContext.Movies.AnyAsync(x => x.Id == movieId))
+            {
+                throw new NotFoundException($"Movie with id {movieId} does not exist");
+            }
+            if (!user.FavoriteMovies.Any(x => x.Id == movieId))
+            {
+                throw new ArgumentException("User does not have this movie in favorites");
+            }
+
             var movie = await _dbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
             user.FavoriteMovies.Remove(movie);
             await _dbContext.SaveChangesAsync();
+            _logger.LogInformation("Movie was succesefully removed from favorite");
         }
-
 
         private async Task<User?> GetUser(string userName)
         {
-            var user = await _dbContext.Users.Include(x => x.FavoriteMovies).ThenInclude(x=>x.Genres)
-                .Include(x=>x.FavoriteMovies).ThenInclude(m=>m.Reviews).FirstOrDefaultAsync(x => x.UserName == userName);
+            var user = await _dbContext.Users.Include(x => x.FavoriteMovies).ThenInclude(x => x.Genres)
+                .Include(x => x.FavoriteMovies).ThenInclude(m => m.Reviews).FirstOrDefaultAsync(x => x.UserName == userName);
             if (user == null)
             {
                 _logger.LogWarning($"user with username {userName} wasn't found");
@@ -76,15 +97,5 @@ namespace MovieCatalogAPI.Services
             return user;
         }
 
-        async Task<bool> IFavoriteMoviesService.IfMovieExists(Guid movieId)
-        {
-            return await _dbContext.Movies.AnyAsync(x => x.Id == movieId);
-        }
-
-        async Task<bool> IFavoriteMoviesService.IfUserHasMovie(string userName, Guid movieId)
-        {
-            var user = await GetUser(userName);
-            return user.FavoriteMovies.Any(x => x.Id == movieId);
-        }
     }
 }

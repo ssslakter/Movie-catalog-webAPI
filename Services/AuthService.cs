@@ -46,7 +46,8 @@ namespace MovieCatalogAPI.Services
                 Email = userData.Email,
                 BirthDate = userData.BirthDate.ToUniversalTime(),
                 Gender = userData.Gender,
-                FavoriteMovies = new List<Movie>()
+                FavoriteMovies = new List<Movie>(),
+                Role="user"
             };
             currUser.PasswordHash = _passwordHasher.HashPassword(currUser, userData.Password);
             await _dbContext.Users.AddAsync(currUser);

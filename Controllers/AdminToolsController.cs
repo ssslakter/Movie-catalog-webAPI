@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
+using System.Data;
 
 namespace MovieCatalogAPI.Controllers
 {
     [Route("api/admin")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class AdminToolsController : Controller
     {
         private IMovieDataService _movieDataService;
@@ -25,7 +28,14 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet("getFilms")]
         public async Task<IActionResult> Get(int page)
         {
-            return Ok(await _movieDataService.GetMovies(page));
+            try
+            {
+                return Ok(await _movieDataService.GetMovies(page));
+            }
+            catch
+            {
+                return BadRequest("Incorrect request format");
+            }
         }
     }
 }

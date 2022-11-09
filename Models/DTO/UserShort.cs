@@ -4,8 +4,8 @@ namespace MovieCatalogAPI.Models
 {
     public class UserShort
     {
-        public Guid UserID { get; set; }
-        public string? UserName { get; set; }
+        public Guid UserId { get; set; }
+        public string? NickName { get; set; }
         public string? Avatar { get; set; }
     }
 }

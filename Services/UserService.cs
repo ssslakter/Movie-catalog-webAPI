@@ -25,8 +25,11 @@ namespace MovieCatalogAPI.Services
         public async Task<ProfileModel> GetUserProfile(string userName)
         {
             var user = await FindUserByUserName(userName);
-            return new ProfileModel(user.Email, user.Name, user.UserName)
+            return new ProfileModel
             {
+                Email = user.Email,
+                Name = user.Name,
+                NickName = user.UserName,
                 Id = user.Id,
                 AvatarLink = user.AvatarLink,
                 BirthDate = user.BirthDate,
@@ -38,12 +41,12 @@ namespace MovieCatalogAPI.Services
         public async Task UpdateUserProfile(string userName, ProfileModel profile)
         {
             var user = await FindUserByUserName(userName);
-            if (user.UserName != profile.UserName)
+            if (user.UserName != profile.NickName)
             {
                 _logger.LogInformation("User tried to change his userName");
                 throw new PermissionDeniedExeption("You are not allowed to change userName");
             }
-            if(user.Id != profile.Id)
+            if (user.Id != profile.Id)
             {
                 _logger.LogInformation("User tried to change his userName");
                 throw new PermissionDeniedExeption("You are only allowed to change your profile");

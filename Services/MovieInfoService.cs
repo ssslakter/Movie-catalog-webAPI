@@ -11,7 +11,7 @@ namespace MovieCatalogAPI.Services
     public interface IMovieInfoService
     {
         IEnumerable<MovieElementModel> GetMovieElements(int currentPage);
-        Task<MovieDetailsModel> GetMovieDetails(Guid movieId, string? userName);
+        Task<MovieDetailsModel> GetMovieDetails(Guid movieId);
     }
 
     public class MovieInfoService : IMovieInfoService
@@ -28,7 +28,7 @@ namespace MovieCatalogAPI.Services
             _movieConverterService = movieConverterService;
         }
 
-        public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId, string? userName)
+        public async Task<MovieDetailsModel> GetMovieDetails(Guid movieId)
         {           
             var movie = await _dbContext.Movies.Include(x => x.Genres).Include(x => x.Reviews).ThenInclude(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == movieId);
             if (movie == null)
@@ -36,28 +36,20 @@ namespace MovieCatalogAPI.Services
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
                 throw new NotFoundException($"Not found movie with id {movieId}");
             }
-            var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            
             foreach (var review in movie.Reviews)
-            {
-                if (!review.IsAnonymous)
-                {
-                    review.AddAuthorShort();
-                }
-                else
-                {
-                    if(user != null && review.AuthorData.Id == user.Id)
-                    {
-                        review.AddAuthorShort();
-                        continue;
-                    }
-                    review.Author = null;                   
-                }                
+            {               
+                review.AddAuthorShort();                
             }            
             return _movieConverterService.MoviesToMovieDetails(movie);
         }
 
         public IEnumerable<MovieElementModel> GetMovieElements(int currentPage)
         {
+            if (currentPage > PaginationData.TotalPageCount)
+            {
+                return new List<MovieElementModel>();
+            }
             return _movieConverterService.MoviesToMovieElements(_dbContext.Movies.OrderBy(x => x.Year)
                 .Skip((currentPage - 1) * PaginationData.MaxItemsPerPage)
                 .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).Include(x => x.Reviews)

@@ -22,7 +22,7 @@ namespace MovieCatalogAPI.Controllers
         [HttpGet("{page}")]
         public IActionResult Get([FromRoute] int page)
         {
-            var correctPage = Math.Max(1, Math.Min(page, PaginationData.TotalPageCount));
+            var correctPage = Math.Max(1, page);
             var movies = _movieInfoService.GetMovieElements(correctPage);
 
             var pageInfo = new PageInfoModel
@@ -39,7 +39,7 @@ namespace MovieCatalogAPI.Controllers
         {
             try
             {
-                var details = await _movieInfoService.GetMovieDetails(id,User.Identity?.Name);
+                var details = await _movieInfoService.GetMovieDetails(id);
                 return Ok(details);
             }
             catch(NotFoundException)

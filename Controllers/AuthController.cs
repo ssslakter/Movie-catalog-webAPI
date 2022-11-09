@@ -26,7 +26,7 @@ namespace MovieCatalogAPI.Controllers
         {
             if (await _authService.IfUserExists(model))
             {
-                return Problem(statusCode: 400, title: "User Registration Failed",
+                return Problem(statusCode: 400, title: "DuplicateUserName",
                     detail: $"User with username \'{model.UserName}\' or email \'{model.Email}\' is already taken.");
             }
             try

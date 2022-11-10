@@ -33,7 +33,8 @@ namespace MovieCatalogAPI.Services
                 Id = user.Id,
                 AvatarLink = user.AvatarLink,
                 BirthDate = user.BirthDate,
-                Gender = user.Gender
+                Gender = user.Gender,
+                Role=user.Role
             };
         }
 

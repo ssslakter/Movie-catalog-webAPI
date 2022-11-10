@@ -22,7 +22,7 @@ namespace MovieCatalogAPI.Controllers
 
         [Authorize]
         [HttpGet("profile")]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<ProfileModel>> Get()
         {
             try
             {

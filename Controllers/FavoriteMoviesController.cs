@@ -21,7 +21,7 @@ namespace MovieCatalogAPI.Controllers
         }
 
         [HttpGet, Authorize]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<MoviesList>> Get()
         {
             try
             {

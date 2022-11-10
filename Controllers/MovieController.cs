@@ -20,7 +20,7 @@ namespace MovieCatalogAPI.Controllers
         }
 
         [HttpGet("{page}")]
-        public IActionResult Get([FromRoute] int page)
+        public ActionResult<MoviesPagedListModel> Get([FromRoute] int page)
         {
             var correctPage = Math.Max(1, page);
             var movies = _movieInfoService.GetMovieElements(correctPage);
@@ -31,18 +31,18 @@ namespace MovieCatalogAPI.Controllers
                 PageCount = PaginationData.TotalPageCount,
                 PageSize = movies.Count()
             };
-            return Ok(new { pageInfo, movies });
+            return Ok(new MoviesPagedListModel(pageInfo) { Movies = movies });
         }
 
         [HttpGet("details/{id}")]
-        public async Task<IActionResult> GetDetails([FromRoute] Guid id)
+        public async Task<ActionResult<MovieDetailsModel>> GetDetails([FromRoute] Guid id)
         {
             try
             {
                 var details = await _movieInfoService.GetMovieDetails(id);
                 return Ok(details);
             }
-            catch(NotFoundException)
+            catch (NotFoundException)
             {
                 return NotFound("Movie with this id does not exist");
             }

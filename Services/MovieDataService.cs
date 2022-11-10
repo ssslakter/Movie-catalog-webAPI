@@ -5,23 +5,25 @@ using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.Core_data;
 using MovieCatalogAPI.Models.DTO;
+using System.Collections;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace MovieCatalogAPI.Services
 {
     public interface IMovieDataService
     {
         Task DeleteMovie(Guid movieId);
-        IEnumerable<Genre> GetGenres();
-        Task AddGenreToMovie(Guid movieId, Guid genreId);
-        Task RemoveGenreFromMovie(Guid movieId, Guid genreId);
         Task AddMovie(MovieInsertModel movieInsertModel);
         Task EditMovie(Guid movieId, MovieInsertModel movieInsertModel);
         Task<MoviesPagedListModel> GetMovies(int page);
         Task AddMoviesPageToDB(int page);
-        
+        IEnumerable<GenreModel> GetGenres();
+
     }
 
     public class MovieDataService : IMovieDataService
@@ -135,48 +137,50 @@ namespace MovieCatalogAPI.Services
         }
 
         async Task IMovieDataService.AddMovie(MovieInsertModel movieInsertModel)
-        {            
+        {
+            //var genres = await GetGenresInDB(movieInsertModel.Genres);            
             var movie = new Movie
             {
-                Name = movieInsertModel .Name,
-                Poster = movieInsertModel .Poster,
-                Year = movieInsertModel .Year,
-                Country = movieInsertModel .Country,
+                Name = movieInsertModel.Name,
+                Poster = movieInsertModel.Poster,
+                Year = movieInsertModel.Year,
+                Country = movieInsertModel.Country,
+                Time = movieInsertModel.Time,
+                Tagline = movieInsertModel.Tagline,
+                Description = movieInsertModel.Description,
+                Director = movieInsertModel.Director,
+                Budget = movieInsertModel.Budget,
+                Fees = movieInsertModel.Fees,
+                AgeLimit = movieInsertModel.AgeLimit,
                 Reviews = new List<Review>(),
                 Genres = new List<Genre>()
             };
-            movie.Time = movieInsertModel .Time;
-            movie.Tagline = movieInsertModel .Tagline;
-            movie.Description = movieInsertModel .Description;
-            movie.Director = movieInsertModel .Director;
-            movie.Budget = movieInsertModel .Budget;
-            movie.Fees = movieInsertModel .Fees;
-            movie.AgeLimit = movieInsertModel .AgeLimit;
+            foreach (var genre in movieInsertModel.Genres)
+            {
+                var genreInDB = await _dbContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Id == genre.Id);
+                if (genreInDB != null)
+                {
+                    movie.Genres.Add(genreInDB);
+                    genreInDB.Movies.Add(movie);
+                }
+            }
             _dbContext.Movies.Add(movie);
             await _dbContext.SaveChangesAsync();
         }
-        public async Task AddGenreToMovie(Guid movieId, Guid genreId)
-        {
-            var movie = await _dbContext.Movies.Include(x => x.Genres).Include(x => x.Reviews).ThenInclude(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == movieId);
-            if (movie == null)
-            {
-                _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
-                throw new NotFoundException($"Not found movie with id {movieId}");
-            }
-            var genre = await _dbContext.Genres.Include(x=>x.Movies).FirstOrDefaultAsync(x => x.Id == genreId);
-            if (genre == null)
-            {
-                _logger.Log(LogLevel.Information, $"Not found genre with id {genreId}");
-                throw new NotFoundException($"Not found genre with id {genreId}");
-            }
-            movie.Genres?.Add(genre);
-            genre.Movies.Add(movie);
-            await _dbContext.SaveChangesAsync();
-        }
-        public IEnumerable<Genre> GetGenres()
-        {
-            return _dbContext.Genres;
-        }
+
+        //private async Task<ICollection<Genre>> GetGenresInDB(IEnumerable<string> genreNames)
+        //{
+        //    var genres = new List<Genre>();
+        //    foreach (var genreName in genreNames)
+        //    {
+        //        var genre = await _dbContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Name == genreName);
+        //        if (genre != null)
+        //        {
+        //            genres.Add(genre);
+        //        }
+        //    }
+        //    return genres;
+        //}
 
         public async Task DeleteMovie(Guid movieId)
         {
@@ -190,25 +194,6 @@ namespace MovieCatalogAPI.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task RemoveGenreFromMovie(Guid movieId, Guid genreId)
-        {
-            var movie = await _dbContext.Movies.Include(x => x.Genres).Include(x => x.Reviews).ThenInclude(x => x.AuthorData).FirstOrDefaultAsync(x => x.Id == movieId);
-            if (movie == null)
-            {
-                _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
-                throw new NotFoundException($"Not found movie with id {movieId}");
-            }
-            var genre = await _dbContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Id == genreId);
-            if (genre == null)
-            {
-                _logger.Log(LogLevel.Information, $"Not found genre with id {genreId}");
-                throw new NotFoundException($"Not found genre with id {genreId}");
-            }
-            genre.Movies.Remove(movie);
-            movie.Genres?.Remove(genre);
-            await _dbContext.SaveChangesAsync();
-        }
-
         public async Task EditMovie(Guid movieId, MovieInsertModel movieInsertModel)
         {
             var movie = await _dbContext.Movies.FirstOrDefaultAsync(x => x.Id == movieId);
@@ -217,6 +202,10 @@ namespace MovieCatalogAPI.Services
                 _logger.Log(LogLevel.Information, $"Not found movie with id {movieId}");
                 throw new NotFoundException($"Not found movie with id {movieId}");
             }
+            movie.Name = movieInsertModel.Name;
+            movie.Poster = movieInsertModel.Poster;
+            movie.Year = movieInsertModel.Year;
+            movie.Country = movieInsertModel.Country;
             movie.Time = movieInsertModel.Time;
             movie.Tagline = movieInsertModel.Tagline;
             movie.Description = movieInsertModel.Description;
@@ -225,6 +214,10 @@ namespace MovieCatalogAPI.Services
             movie.Fees = movieInsertModel.Fees;
             movie.AgeLimit = movieInsertModel.AgeLimit;
             await _dbContext.SaveChangesAsync();
+        }
+        public IEnumerable<GenreModel> GetGenres()
+        {
+            return _dbContext.Genres.Select(x => new GenreModel { Id = x.Id, Name = x.Name });
         }
     }
 }

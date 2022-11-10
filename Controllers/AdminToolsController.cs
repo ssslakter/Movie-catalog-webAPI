@@ -7,6 +7,7 @@ using MovieCatalogAPI.Models.Core_data;
 using MovieCatalogAPI.Models.DTO;
 using MovieCatalogAPI.Services;
 using System.Data;
+using System.Text.Json.Nodes;
 
 namespace MovieCatalogAPI.Controllers
 {
@@ -40,7 +41,7 @@ namespace MovieCatalogAPI.Controllers
         }
 
         [HttpGet("getFilmsFromKreosoft/{page}")]
-        public async Task<IActionResult> Get([FromRoute] int page)
+        public async Task<ActionResult<MoviesPagedListModel>> Get([FromRoute] int page)
         {
             try
             {
@@ -135,65 +136,13 @@ namespace MovieCatalogAPI.Controllers
             }
 
         }
-        [HttpPost("{movieId}/addGenre/{genreId}")]
-        public async Task<IActionResult> AddGenre([FromRoute] Guid movieId, [FromRoute] Guid genreId)
-        {
-            try
-            {
-                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
-                {
-                    return Unauthorized("Token is expired");
-                }
-            }
-            catch { }
-            try
-            {
-                await _movieDataService.AddGenreToMovie(movieId, genreId);
-                return Ok();
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-            catch
-            {
-                return Problem(statusCode: 500, title: "Something went wrong");
-            }
-        }
 
-        [HttpDelete("{movieId}/removeGenre/{genreId}")]
-        public async Task<IActionResult> RemoveGenre([FromRoute] Guid movieId, [FromRoute] Guid genreId)
-        {
-            try
-            {
-                if (await _tokenCacheService.IsTokenInDB(Request.Headers[HeaderNames.Authorization]))
-                {
-                    return Unauthorized("Token is expired");
-                }
-            }
-            catch { }
-            try
-            {
-                await _movieDataService.RemoveGenreFromMovie(movieId, genreId);
-                return Ok();
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
-            catch
-            {
-                return Problem(statusCode: 500, title: "Something went wrong");
-            }
-        }
-
-        
         [HttpGet("getGenres")]
-        public IActionResult GetGenrese()
+        public ActionResult<IEnumerable<GenreModel>> GetGenrese()
         {
             try
             {
-                return Ok(_movieDataService.GetGenres());
+                return Ok(new Dictionary<string, IEnumerable<GenreModel>> { { "genres", _movieDataService.GetGenres() } });
             }
             catch
             {

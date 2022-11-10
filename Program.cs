@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
@@ -8,6 +7,7 @@ using MovieCatalogAPI.Configurations;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using MovieCatalogAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

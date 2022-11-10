@@ -4,7 +4,6 @@ using MovieCatalogAPI.Configurations;
 using MovieCatalogAPI.Exceptions;
 using MovieCatalogAPI.Models;
 using MovieCatalogAPI.Models.Core_data;
-using MovieCatalogAPI.Models.DTO;
 
 namespace MovieCatalogAPI.Services
 {

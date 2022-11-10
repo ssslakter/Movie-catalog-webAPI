@@ -43,13 +43,14 @@ namespace MovieCatalogAPI.Services
             return _movieConverterService.MoviesToMovieDetails(movie);
         }
 
+
         public IEnumerable<MovieElementModel> GetMovieElements(int currentPage)
         {
             if (currentPage > PaginationData.TotalPageCount)
             {
                 return new List<MovieElementModel>();
             }
-            return _movieConverterService.MoviesToMovieElements(_dbContext.Movies.OrderBy(x => x.Year)
+            return _movieConverterService.MoviesToMovieElements(_dbContext.Movies.OrderBy(x => x.Name)
                 .Skip((currentPage - 1) * PaginationData.MaxItemsPerPage)
                 .Take(PaginationData.MaxItemsPerPage).Include(x => x.Genres).Include(x => x.Reviews)
                 .ToList()

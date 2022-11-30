@@ -1,7 +1,7 @@
 variables:
   VERSION_NUMBER: '1.0'
   CONFIG: 'Release'
-  EXE_RELEASE_FOLDER: '/app/Release/MovieCatalogAPI.exe'
+  EXE_RELEASE_FOLDER: '/app/Release/'
   #TEST_FOLDER: 'Tests/bin/Release'
   DEPLOY_FOLDER: '/Builds'
 
@@ -21,13 +21,13 @@ build_job:
   artifacts:
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
     paths:
-      - '$env:EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
+      - '$EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
       #- '$env:TEST_FOLDER\'  # saving entire Test project so NUnit can run tests
 
 test_job:
   stage: test
   only:
-    - master
+    - tags
   script:
     - '& "$env:NUNIT_PATH" ".\$env:TEST_FOLDER\Tests.dll"'  # running NUnit tests
   artifacts:
@@ -41,7 +41,7 @@ test_job:
 deploy_job:
   stage: deploy
   only:
-    - master
+    - tags
   script:
     # Compose a folder for each release based on commit tag.
     # Assuming your tag is Rev1.0.0.1, and your last commit message is 'First commit'

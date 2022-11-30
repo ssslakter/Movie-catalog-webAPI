@@ -1,7 +1,7 @@
 variables:
   VERSION_NUMBER: '1.0'
   CONFIG: 'Release'
-  EXE_RELEASE_FOLDER: '/bin/Release/MovieCatalogAPI.exe'
+  EXE_RELEASE_FOLDER: '/app/Release/MovieCatalogAPI.exe'
   #TEST_FOLDER: 'Tests/bin/Release'
   DEPLOY_FOLDER: '/Builds'
 
@@ -21,7 +21,7 @@ build_job:
   artifacts:
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
     paths:
-      - '$env:EXE_RELEASE_FOLDER\YourApp.exe'  # saving exe to copy to deploy folder
+      - '$env:EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
       #- '$env:TEST_FOLDER\'  # saving entire Test project so NUnit can run tests
 
 test_job:

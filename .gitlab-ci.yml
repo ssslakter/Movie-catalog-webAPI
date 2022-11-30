@@ -12,7 +12,7 @@ stages:
 
 build_job:
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:6.0
+  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
   only:
     - master  # the build process will only be started by git tag commits
   script:

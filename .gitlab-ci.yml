@@ -1,7 +1,7 @@
 variables:
   VERSION_NUMBER: '1.0'
   CONFIG: 'Release'
-  EXE_RELEASE_FOLDER: '/app/Release/'
+  EXE_RELEASE_FOLDER: 'app/Release/'
   #TEST_FOLDER: 'Tests/bin/Release'
   DEPLOY_FOLDER: '/Builds'
 

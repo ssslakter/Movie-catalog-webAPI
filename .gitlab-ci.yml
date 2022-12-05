@@ -1,0 +1,59 @@
+variables:
+  VERSION_NUMBER: '1.0'
+  CONFIG: 'Release'
+  EXE_RELEASE_FOLDER: 'app/Release/'
+  #TEST_FOLDER: 'Tests/bin/Release'
+  DEPLOY_FOLDER: '/Builds'
+
+stages:
+  - build
+  - test
+  - deploy
+
+build_job:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
+  only:
+    - master  # the build process will only be started by git tag commits
+  script:
+    - dotnet restore  # restore Nuget dependencies
+    - dotnet build ./MovieCatalogAPI.csproj -c $CONFIG -o $EXE_RELEASE_FOLDER --version-suffix $VERSION_NUMBER  # build the project
+  artifacts:
+    expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
+    paths:
+      - '$EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
+      #- '$env:TEST_FOLDER\'  # saving entire Test project so NUnit can run tests
+
+test_job:
+  stage: test
+  only:
+    - tags
+  script:
+    - '& "$env:NUNIT_PATH" ".\$env:TEST_FOLDER\Tests.dll"'  # running NUnit tests
+  artifacts:
+    when: always  # save test results even when the task fails
+    expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
+    paths:
+      - '.\TestResult.xml'  # saving NUnit results to copy to deploy folder
+  dependencies:
+    - build_job
+
+deploy_job:
+  stage: deploy
+  only:
+    - tags
+  script:
+    # Compose a folder for each release based on commit tag.
+    # Assuming your tag is Rev1.0.0.1, and your last commit message is 'First commit'
+    # the artifact files will be copied to:
+    # P:\Projects\YourApp\Builds\Rev1.0.0.1 - First commit\
+    - '$commitSubject = git log -1 --pretty=%s'
+    - '$deployFolder = $($env:DEPLOY_FOLDER) + "\" + $($env:CI_BUILD_TAG) + " - " + $commitSubject + "\"'
+
+    # xcopy takes care of recursively creating required folders
+    - 'xcopy /y ".\$env:EXE_RELEASE_FOLDER\YourApp.exe" "$deployFolder"'
+    - 'xcopy /y ".\$env:MSI_RELEASE_FOLDER\YourApp Setup.msi" "$deployFolder"'
+    - 'xcopy /y ".\TestResult.xml" "$deployFolder"'
+  dependencies:
+    - build_job
+    - test_job

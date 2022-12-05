@@ -1,9 +1,12 @@
 variables:
   VERSION_NUMBER: '1.0'
   CONFIG: 'Release'
+  PROJECT_MAIN: './MovieCatalogAPI'  
+  PROJECT_TESTS: './MovieCatalogAPI.Tests'
   EXE_RELEASE_FOLDER: 'app/Release/'
-  #TEST_FOLDER: 'Tests/bin/Release'
+  TEST_FOLDER: 'Tests/bin/Release'
   DEPLOY_FOLDER: '/Builds'
+  LOG_PATH: 'Tests/logs'
 
 stages:
   - build
@@ -17,9 +20,11 @@ build_job:
     - master  # the build process will only be started by git tag commits
   script:
     - dotnet restore  # restore Nuget dependencies
-    - dotnet build ./MovieCatalogAPI.csproj -c $CONFIG -o $EXE_RELEASE_FOLDER --version-suffix $VERSION_NUMBER  # build the project
+    - dotnet build $PROJECT_MAIN/MovieCatalogAPI.csproj -c $CONFIG -o $EXE_RELEASE_FOLDER --version-suffix $VERSION_NUMBER  # build the project
   artifacts:
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
+    when: 
+      - on_success 
     paths:
       - '$EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
       #- '$env:TEST_FOLDER\'  # saving entire Test project so NUnit can run tests
@@ -29,7 +34,7 @@ test_job:
   only:
     - tags
   script:
-    - '& "$env:NUNIT_PATH" ".\$env:TEST_FOLDER\Tests.dll"'  # running NUnit tests
+    - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag LOG_PATH/test_logs.txt'  # running NUnit tests
   artifacts:
     when: always  # save test results even when the task fails
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on

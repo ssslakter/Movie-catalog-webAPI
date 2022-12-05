@@ -32,12 +32,12 @@ build_job:
 test_job:
   stage: test
   script:
-    - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag LOG_PATH/test_logs.txt'  # running NUnit tests
+    - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag $LOG_PATH/test_logs.txt'  # running NUnit tests
   artifacts:
     when: always  # save test results even when the task fails
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
     paths:
-      - '.\TestResult.xml'  # saving NUnit results to copy to deploy folder
+      - '$LOG_PATH/test_logs.txt'  # saving NUnit results to copy to deploy folder
   dependencies:
     - build_job
 

@@ -31,8 +31,6 @@ build_job:
 
 test_job:
   stage: test
-  only:
-    - tags
   script:
     - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag LOG_PATH/test_logs.txt'  # running NUnit tests
   artifacts:

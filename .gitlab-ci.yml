@@ -8,6 +8,8 @@ variables:
   DEPLOY_FOLDER: '/Builds'
   LOG_PATH: 'Tests/logs'
 
+
+
 stages:
   - build
   - test
@@ -27,9 +29,9 @@ build_job:
       - on_success 
     paths:
       - '$EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
-      #- '$env:TEST_FOLDER\'  # saving entire Test project so NUnit can run tests
 
 test_job:
+  image: mcr.microsoft.com/dotnet/aspnet:6.0
   stage: test
   script:
     - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag $LOG_PATH/test_logs.txt'  # running NUnit tests
@@ -37,9 +39,11 @@ test_job:
     when: always  # save test results even when the task fails
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
     paths:
-      - '$LOG_PATH/test_logs.txt'  # saving NUnit results to copy to deploy folder
+      - '$LOG_PATH/test_logs.txt' 
   dependencies:
     - build_job
+  services:
+    - name: redis:alpine
 
 deploy_job:
   stage: deploy

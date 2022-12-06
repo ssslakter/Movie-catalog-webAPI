@@ -1,4 +1,3 @@
-include: 'Templates/build_dotnet_template.gitlab-ci.yml'
 #just
 variables:
   VERSION: '1.0'

@@ -7,23 +7,30 @@ variables:
   PROJECT_PATH: 'MovieCatalogAPI/MovieCatalogAPI.csproj'  
   TESTS_PATH: 'MovieCatalogAPI.Tests/MovieCatalogAPI.Tests.csproj'
   RELEASE_BUILD_PATH: 'app/Release/'
-  DEPLOY_FOLDER: '/Builds'
+  DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
   TARGET_OS: "linux-x64"
-  ConnectionStrings__Default: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
-
-default:
-  tags:
-    - main
+  DATABASE_CONNECTION_STRING_TEST: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
+  DATABASE_CONNECTION_STRING_PROD: "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;"
 
 stages:
+  - build
   - test
   - build_prod
   - deploy
 
+build_job:
+  image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
+  stage: build
+  script:
+    - dotnet format --diagnostics
+    - dotnet build --os $OS -c $CONFIG --version-suffix $VERSION
+
 test_job:
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
+  variables:
+    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
   only:
     - branches
   script:
@@ -47,7 +54,7 @@ build_app:
     CONFIG: $CONFIG
     OS: $TARGET_OS
     BUILD_PATH: $RELEASE_BUILD_PATH"
-  script:
+  after_script:
     - ls $RELEASE_BUILD_PATH
 
 

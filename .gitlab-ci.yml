@@ -14,12 +14,14 @@ variables:
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
   TARGET_OS: "linux"
+  ASPNETCORE_URLS: https://192.168.0.4:7268;http://192.168.0.4:5268
 
 stages:
+  - deploy
   - build_prod
   - build
   - test  
-  - deploy
+  
 
 build_job:
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
@@ -81,6 +83,7 @@ build_docker:
 
 
 deploy_job:
+  image: docker
   environment: production
   variables:
     ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
@@ -88,8 +91,8 @@ deploy_job:
   only:
     - master
   script:
-    - echo "TODO"
-    #get container from container registry
-    #docker up
-    # login before script
-    # add to enviroment variables ASPNETCORE_URLS
+    - docker login -u $CI_REGISTRY_USER -p  $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $CI_REGISTRY/$CI_REGISTRY_IMAGE
+    - docker run -d $CI_REGISTRY_IMAGE -p 7268:1235-7800 --network "host"
+  services:
+    - redis:alpine

@@ -1,5 +1,5 @@
 .build:
-  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
+  image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   variables:
     PROJECT_PATH: "project.csproj"
     VERSION_NUMBER: "0.1"

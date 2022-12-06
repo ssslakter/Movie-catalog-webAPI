@@ -27,12 +27,13 @@ test_job:
   only:
     - branches
   script:
-    - dotnet test $TESTS_PATH --logger "trx;logfilename=$LOG_PATH/testResults.trx"
+    - dotnet test $TESTS_PATH --logger "trx;logfilename=testResults.trx"
+    - mv /builds/slava_chaunin/webapi-aspnet-movie-catalog/MovieCatalogAPI.Tests/TestResults/testResults.trx $LOG_PATH/testResults.trx
   services:
     - name: redis:alpine
   artifacts:
     paths:
-      - '$LOG_PATH'  # saving logs
+      - $LOG_PATH  # saving logs
 
 build_app:
   extends: .build

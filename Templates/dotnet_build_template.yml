@@ -1,0 +1,18 @@
+build_app:
+  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
+  variables:
+    PROJECT_PATH: "project.csproj"
+    VERSION_NUMBER: "0.1"
+    CONFIG: "Release"
+    OS: "linux-x64"
+    BUILD_PATH: "app/Release"
+  script:
+    - dotnet build $PROJECT_PATH -c $CONFIG
+    - dotnet publish $PROJECT_PATH -c $CONFIG --os $OS -o $BUILD_PATH --version-suffix $VERSION_NUMBER 
+    - ls $BUILD_PATH
+  artifacts:
+    expire_in: 1 week
+    when: 
+      - on_success 
+    paths:
+      - '$BUILD_PATH'  # saving build to folder

@@ -34,6 +34,7 @@ test_job:
   only:
     - branches
   script:
+    - echo $ConnectionStrings__Default
     - dotnet test $TESTS_PATH --logger "trx;logfilename=testResults.trx"
     - mkdir -p $LOG_PATH
     - mv /builds/slava_chaunin/webapi-aspnet-movie-catalog/MovieCatalogAPI.Tests/TestResults/testResults.trx $LOG_PATH

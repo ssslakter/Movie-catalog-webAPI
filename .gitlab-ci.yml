@@ -18,7 +18,7 @@ stages:
   - deploy
 
 test_job:
-  image: hello-world
+  image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
   only:
     - branches

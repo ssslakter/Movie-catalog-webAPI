@@ -1,5 +1,5 @@
-include:
-  - local: 'Templates/dotnet_build_template.yml'
+#include:
+#  - local: 'Templates/dotnet_build_template.yml'
 
 default:
   tags:
@@ -48,19 +48,21 @@ test_job:
 
 
 
+
 build_prod_job:
-  extends: .build
   stage: build_prod
+  image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
+  before_script:
+    - ls $PROJECT_PATH
+  script:
+  - dotnet build $PROJECT_PATH -c $CONFIG
+  - dotnet publish $PROJECT_PATH -c $CONFIG --os $TARGET_OS -o $RELEASE_BUILD_PATH --version-suffix $VERSION
+  artifacts:
+    expire_in: 1 week
+    paths:
+    - "$BUILD_PATH"
   only:
     - master
-  before_script:
-    - "ls ./MovieCatalogAPI"
-  variables:
-    PROJECT_PATH: $PROJECT_PATH
-    VERSION_NUMBER: $VERSION
-    CONFIG: $CONFIG
-    OS: $TARGET_OS
-    BUILD_PATH: $RELEASE_BUILD_PATH
   after_script:
     - ls $RELEASE_BUILD_PATH
 

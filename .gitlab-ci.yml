@@ -53,6 +53,8 @@ build_prod_job:
   stage: build_prod
   only:
     - master
+  before_script:
+    - "ls ./MovieCatalogAPI"
   variables:
     PROJECT_PATH: $PROJECT_PATH
     VERSION_NUMBER: $VERSION

@@ -16,9 +16,9 @@ variables:
   TARGET_OS: "linux"
 
 stages:
-  - build
-  - test
   - build_prod
+  - build
+  - test  
   - deploy
 
 build_job:
@@ -60,7 +60,7 @@ build_prod_job:
   artifacts:
     expire_in: 1 week
     paths:
-    - "$BUILD_PATH"
+    - $RELEASE_BUILD_PATH
   only:
     - master
   after_script:
@@ -75,7 +75,7 @@ build_docker:
   only:
     - master
   script:
-    - docker login gitlab.kupriyanov.space:5050
+    #- docker login gitlab.kupriyanov.space:5050
     - docker build -t gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog .
     - docker push gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog  
   dependencies:

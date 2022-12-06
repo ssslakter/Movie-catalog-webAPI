@@ -26,12 +26,12 @@ test_job:
     - dotnet test $TESTS_PATH --Diag $LOG_PATH/test_logs.txt
   services:
     - name: redis:alpine
-  artifacts:
-    expire_in: 1 month
-    when: 
-      - always 
-    paths:
-      - '$LOG_PATH/test_logs.txt'  # saving logs
+  #artifacts:
+  #  expire_in: 1 month
+   # when: 
+   #   - always 
+   # paths:
+   #   - '$LOG_PATH/test_logs.txt'  # saving logs
 
 build_app:
   image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64

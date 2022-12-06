@@ -10,7 +10,7 @@ variables:
   DEPLOY_FOLDER: '/Builds'
   LOG_PATH: 'app/Tests/logs'
   TARGET_OS: "linux-x64"
-  ConnectionStrings__Default: "Server=172.17.0.1;Database=MovieDB;UserID=postgres;Password=2003;"
+  ConnectionStrings__Default: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
 
 default:
   tags:

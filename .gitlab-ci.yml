@@ -9,6 +9,7 @@ variables:
   RELEASE_BUILD_PATH: 'app/Release/'
   DEPLOY_FOLDER: '/Builds'
   LOG_PATH: 'app/Tests/logs'
+  TARGET_OS: "linux-x64"
 
 default:
   tags:
@@ -32,25 +33,20 @@ test_job:
     paths:
       - '$LOG_PATH/test_logs.txt'  # saving logs
 
-build_app:
-  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
+build:
+  extends: .build_app
   stage: build_prod
   needs: ["test_job"]
   only:
     - master
   variables:
-    VERSION_NUMBER: "0.1"
-    CONFIG: "Release"
+    PROJECT_PATH: $PROJECT_PATH
+    VERSION_NUMBER: $VERSION
+    CONFIG: $CONFIG
+    OS: $TARGET_OS
+    BUILD_PATH: $RELEASE_BUILD_PATH"
   script:
-    - dotnet build $PROJECT_PATH -c $CONFIG
-    - dotnet publish $PROJECT_PATH -c $CONFIG --os linux-x64 -o $RELEASE_BUILD_PATH --version-suffix $VERSION_NUMBER 
     - ls $RELEASE_BUILD_PATH
-  artifacts:
-    expire_in: 1 week
-    when: 
-      - on_success 
-    paths:
-      - '$RELEASE_BUILD_PATH'  # saving exe to copy to deploy folder
 
 
 #docker build

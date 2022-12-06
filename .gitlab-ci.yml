@@ -4,8 +4,8 @@ include:
 variables:
   VERSION: '0.1'
   CONFIG: 'Release'
-  PROJECT_PATH: 'MovieCatalogAPI/'  
-  TESTS_PATH: 'MovieCatalogAPI.Tests/'
+  PROJECT_PATH: 'MovieCatalogAPI/MovieCatalogAPI.csproj'  
+  TESTS_PATH: 'MovieCatalogAPI.Tests/MovieCatalogAPI.Tests.csproj'
   RELEASE_BUILD_PATH: 'app/Release/'
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
@@ -24,7 +24,7 @@ build_job:
   stage: build
   script:
     - dotnet format --diagnostics $PROJECT_PATH
-    - dotnet build $PROJECT_PATH  -c $CONFIG --os $OS --version-suffix $VERSION
+    - dotnet build $PROJECT_PATH -o RELEASE_BUILD_PATH -c $CONFIG --os $OS --version-suffix $VERSION
 
 test_job:
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64

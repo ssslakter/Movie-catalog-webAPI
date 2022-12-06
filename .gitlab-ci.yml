@@ -1,6 +1,7 @@
 include:
   - local: 'Templates/dotnet_build_template.yml'
 
+
 variables:
   VERSION: '0.1'
   CONFIG: 'Release'
@@ -10,8 +11,8 @@ variables:
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
   TARGET_OS: "linux"
-  DATABASE_CONNECTION_STRING_TEST: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
-  DATABASE_CONNECTION_STRING_PROD: "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;"
+  #DATABASE_CONNECTION_STRING_TEST: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
+  #DATABASE_CONNECTION_STRING_PROD: "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;"
 
 stages:
   - build
@@ -27,10 +28,11 @@ build_job:
     - dotnet build $PROJECT_PATH -o $RELEASE_BUILD_PATH -c $CONFIG --os $TARGET_OS --version-suffix $VERSION
 
 test_job:
+  environment: test
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
-  variables:
-    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
+  #variables:
+    #ConnectionStrings__Default: $DATABASE_CONNECTION_STRING_TEST
   only:
     - branches
   script:
@@ -43,7 +45,7 @@ test_job:
     paths:
       - $LOG_PATH  # saving logs
 
-build_app:
+build_prod_job:
   extends: .build
   stage: build_prod
   only:
@@ -62,15 +64,21 @@ build_app:
 build_docker:
   image: docker
   stage: build_prod
-  needs: ["build_app"]
+  needs: ["build_prod_job"]
   only:
     - master
   script:
     - docker login gitlab.kupriyanov.space:5050
     - docker build -t gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog .
-    - docker push gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog
+    - docker push gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog  
+  dependencies:
+    - build_prod_job
+
 
 deploy_job:
+  environment: production
+  #variables:
+    #ConnectionStrings__Default: $DATABASE_CONNECTION_STRING_PROD
   stage: deploy
   only:
     - master
@@ -80,8 +88,3 @@ deploy_job:
     #docker up
     # login before script
     # add to enviroment variables ASPNETCORE_URLS
-
-
-  dependencies:
-    - build_app
-    - test_job

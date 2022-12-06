@@ -1,4 +1,6 @@
-#just commit
+include:
+  - local: 'Templates/dotnet_build_template.yml'
+
 variables:
   VERSION: '1.0'
   CONFIG: 'Release'

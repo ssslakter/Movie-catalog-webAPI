@@ -1,6 +1,9 @@
 include:
   - local: 'Templates/dotnet_build_template.yml'
 
+default:
+  tags:
+    - main
 
 variables:
   VERSION: '0.1'
@@ -26,10 +29,11 @@ build_job:
     - dotnet build $PROJECT_PATH -o $RELEASE_BUILD_PATH -c $CONFIG --os $TARGET_OS --version-suffix $VERSION
 
 test_job:
+  environment: test
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
   variables:
-    ConnectionStrings__Default: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
+    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
   only:
     - branches
   script:

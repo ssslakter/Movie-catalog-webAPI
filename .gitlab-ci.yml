@@ -33,8 +33,8 @@ test_job:
     paths:
       - '$LOG_PATH/test_logs.txt'  # saving logs
 
-build:
-  extends: .build_app
+build_app:
+  extends: .build
   stage: build_prod
   needs: ["test_job"]
   only:

@@ -4,8 +4,8 @@ include:
 variables:
   VERSION: '0.1'
   CONFIG: 'Release'
-  PROJECT_PATH: '//MovieCatalogAPI/MovieCatalogAPI.csproj'  
-  TESTS_PATH: '//MovieCatalogAPI.Tests/MovieCatalogAPI.Tests.csproj'
+  PROJECT_PATH: '/MovieCatalogAPI/MovieCatalogAPI.csproj'  
+  TESTS_PATH: '/MovieCatalogAPI.Tests/MovieCatalogAPI.Tests.csproj'
   RELEASE_BUILD_PATH: 'app/Release/'
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'

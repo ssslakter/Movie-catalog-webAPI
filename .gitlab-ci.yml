@@ -8,6 +8,10 @@ variables:
   DEPLOY_FOLDER: '/Builds'
   LOG_PATH: 'app/Tests/logs'
 
+default:
+  tags:
+    - main
+
 stages:
   - test
   - build_prod

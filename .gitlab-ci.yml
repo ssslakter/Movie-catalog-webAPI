@@ -58,7 +58,7 @@ build_prod_job:
     VERSION_NUMBER: $VERSION
     CONFIG: $CONFIG
     OS: $TARGET_OS
-    BUILD_PATH: $RELEASE_BUILD_PATH"
+    BUILD_PATH: $RELEASE_BUILD_PATH
   after_script:
     - ls $RELEASE_BUILD_PATH
 

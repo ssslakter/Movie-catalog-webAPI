@@ -1,5 +1,4 @@
-#include: 
-#  -local: '/**/**.gitlab-ci.yml'
+include: 'Templates/build_dotnet_template.gitlab-ci.yml'
 
 variables:
   VERSION: '1.0'
@@ -78,28 +77,3 @@ deploy_job:
   dependencies:
     - build_app
     - test_job
-
-
-
-
-
-
-
-
-.build_dotnet:
-  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
-  variables:
-    VERSION_NUMBER: "0.1"
-    CONFIG: "Release"
-    PROJECT_PATH: ""
-    EXE_FOLDER_PATH: "app/bin/build.exe"
-  script:
-    - dotnet restore  # restore Nuget dependencies
-    - dotnet build --no-restore $PROJECT_PATH -c $CONFIG -o $EXE_FOLDER_PATH --version-suffix $VERSION_NUMBER  # build the project
-  artifacts:
-    expire_in: 1 week
-    when: 
-      - on_success 
-    paths:
-      - '$EXE_FOLDER_PATH'
-

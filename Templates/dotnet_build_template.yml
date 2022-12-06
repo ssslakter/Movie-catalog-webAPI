@@ -9,7 +9,6 @@ build_app:
   script:
     - dotnet build $PROJECT_PATH -c $CONFIG
     - dotnet publish $PROJECT_PATH -c $CONFIG --os $OS -o $BUILD_PATH --version-suffix $VERSION_NUMBER 
-    - ls $BUILD_PATH
   artifacts:
     expire_in: 1 week
     when: 

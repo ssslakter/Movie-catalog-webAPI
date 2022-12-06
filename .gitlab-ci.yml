@@ -9,7 +9,7 @@ variables:
   RELEASE_BUILD_PATH: 'app/Release/'
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
-  TARGET_OS: "linux-x64"
+  TARGET_OS: "linux"
   DATABASE_CONNECTION_STRING_TEST: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
   DATABASE_CONNECTION_STRING_PROD: "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;"
 

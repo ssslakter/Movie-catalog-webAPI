@@ -1,54 +1,68 @@
+#include: 
+#  -local: '/**/**.gitlab-ci.yml'
+
 variables:
-  VERSION_NUMBER: '1.0'
+  VERSION: '1.0'
   CONFIG: 'Release'
-  PROJECT_MAIN: './MovieCatalogAPI'  
-  PROJECT_TESTS: './MovieCatalogAPI.Tests'
-  EXE_RELEASE_FOLDER: 'app/Release/'
-  TEST_FOLDER: 'Tests/bin/Release'
+  MAIN_PATH: './MovieCatalogAPI/MovieCatalogAPI.csproj'  
+  TESTS_PATH: './MovieCatalogAPI.Tests/MovieCatalogAPI.Tests.csproj/'
+  RELEASE_BUILD_PATH: 'app/Release/'
+  TEST_BUILD_PATH: 'app/Tests/Release/MovieCatalogAPI.Tests.dll'
   DEPLOY_FOLDER: '/Builds'
-  LOG_PATH: 'Tests/logs'
-
-
+  LOG_PATH: 'app/Tests/Tests/Release/logs'
 
 stages:
   - build
   - test
   - deploy
 
-build_job:
+build_tests:
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
   only:
-    - master  # the build process will only be started by git tag commits
-  script:
-    - dotnet restore  # restore Nuget dependencies
-    - dotnet build $PROJECT_MAIN/MovieCatalogAPI.csproj -c $CONFIG -o $EXE_RELEASE_FOLDER --version-suffix $VERSION_NUMBER  # build the project
-  artifacts:
-    expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
-    when: 
-      - on_success 
-    paths:
-      - '$EXE_RELEASE_FOLDER'  # saving exe to copy to deploy folder
+    - branches
+  extends: .build_dotnet
+  variables:
+    VERSION_NUMBER: $VERSION
+    CONFIG: $CONFIG
+    PROJECT_PATH: $TESTS_PATH
+    EXE_FOLDER_PATH: $TEST_BUILD_PATH
+
+  
+build_app:
+  stage: build
+  only:
+    - branches
+  extends: .build_dotnet
+  variables:
+    VERSION_NUMBER: $VERSION
+    CONFIG: $CONFIG
+    PROJECT_PATH: $TESTS_PATH
+    EXE_FOLDER_PATH: $TEST_BUILD_PATH
+
 
 test_job:
   image: mcr.microsoft.com/dotnet/aspnet:6.0
   stage: test
+  needs: ["build_tests","build_app"]
+  only:
+    - branches
   script:
-    - 'dotnet vstest $PROJECT_TESTS/MovieCatalogAPI.Tests.dll --Diag $LOG_PATH/test_logs.txt'  # running NUnit tests
+    - 'dotnet vstest $TEST_BUILD_PATH --Diag $LOG_PATH/test_logs.txt'  # running NUnit tests
   artifacts:
     when: always  # save test results even when the task fails
     expire_in: 1 week  # save gitlab server space, we copy the files we need to deploy folder later on
     paths:
       - '$LOG_PATH/test_logs.txt' 
   dependencies:
-    - build_job
+    - build_tests
   services:
     - name: redis:alpine
 
 deploy_job:
   stage: deploy
+  needs: ["test_job","build_app"]
   only:
-    - tags
+    - master
   script:
     # Compose a folder for each release based on commit tag.
     # Assuming your tag is Rev1.0.0.1, and your last commit message is 'First commit'
@@ -62,5 +76,30 @@ deploy_job:
     - 'xcopy /y ".\$env:MSI_RELEASE_FOLDER\YourApp Setup.msi" "$deployFolder"'
     - 'xcopy /y ".\TestResult.xml" "$deployFolder"'
   dependencies:
-    - build_job
+    - build_app
     - test_job
+
+
+
+
+
+
+
+
+.build_dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
+  variables:
+    VERSION_NUMBER: "0.1"
+    CONFIG: "Release"
+    PROJECT_PATH: ""
+    EXE_FOLDER_PATH: "app/bin/build.exe"
+  script:
+    - dotnet restore  # restore Nuget dependencies
+    - dotnet build --no-restore $PROJECT_PATH -c $CONFIG -o $EXE_FOLDER_PATH --version-suffix $VERSION_NUMBER  # build the project
+  artifacts:
+    expire_in: 1 week
+    when: 
+      - on_success 
+    paths:
+      - '$EXE_FOLDER_PATH'
+

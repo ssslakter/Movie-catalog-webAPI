@@ -11,7 +11,5 @@
     - dotnet publish $PROJECT_PATH -c $CONFIG --os $OS -o $BUILD_PATH --version-suffix $VERSION_NUMBER 
   artifacts:
     expire_in: 1 week
-    when: 
-      - on_success 
     paths:
       - '$BUILD_PATH'  # saving build to folder

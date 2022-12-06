@@ -24,7 +24,7 @@ build_job:
   stage: build
   script:
     - dotnet format --diagnostics $PROJECT_PATH
-    - dotnet build $PROJECT_PATH -o $RELEASE_BUILD_PATH 
+    - dotnet build $PROJECT_PATH -o $RELEASE_BUILD_PATH -c $CONFIG --os $TARGET_OS --version-suffix $VERSION
 
 test_job:
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64

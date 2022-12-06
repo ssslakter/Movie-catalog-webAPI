@@ -27,8 +27,6 @@ test_job:
   services:
     - name: redis:alpine
   artifacts:
-    when: 
-      - always 
     paths:
       - '$LOG_PATH/test_logs.txt'  # saving logs
 

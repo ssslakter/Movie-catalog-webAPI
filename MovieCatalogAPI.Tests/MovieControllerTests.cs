@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MovieCatalogAPI.Controllers;
 using MovieCatalogAPI.Models;
@@ -17,7 +18,9 @@ namespace MovieCatalogAPI.Tests
         public MovieControllerTests()
         {
             var services = new ServiceCollection();
-            var connection = "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;";
+            var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddEnvironmentVariables();
+            var config = builder.Build();
+            var connection = config.GetConnectionString("default");
             services.AddTransient<IMovieConverterService,MovieConverterService>();
             services.AddDbContext<MovieDBContext>(opts => opts.UseNpgsql(connection));
             services.AddLogging();

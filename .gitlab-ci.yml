@@ -26,17 +26,16 @@ test_job:
   only:
     - branches
   script:
-    - dotnet test $TESTS_PATH --Diag $LOG_PATH/test_logs.txt
+    - dotnet test $TESTS_PATH --logger "trx;logfilename=$LOG_PATH/testResults.trx"
   services:
     - name: redis:alpine
   artifacts:
     paths:
-      - '$LOG_PATH/test_logs.txt'  # saving logs
+      - '$LOG_PATH'  # saving logs
 
 build_app:
   extends: .build
   stage: build_prod
-  needs: ["test_job"]
   only:
     - master
   variables:
@@ -63,7 +62,6 @@ build_docker:
 
 deploy_job:
   stage: deploy
-  needs: ["test_job","build_app"]
   only:
     - master
   script:

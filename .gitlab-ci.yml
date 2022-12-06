@@ -30,14 +30,14 @@ test_job:
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
   variables:
-    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
+    ConnectionStrings__Default: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
   only:
     - branches
   script:
     - echo $ConnectionStrings__Default
     - dotnet test $TESTS_PATH --logger "trx;logfilename=testResults.trx"
     - mkdir -p $LOG_PATH
-    - mv /builds/slava_chaunin/webapi-aspnet-movie-catalog/MovieCatalogAPI.Tests/TestResults/testResults.trx $LOG_PATH
+    - mv MovieCatalogAPI.Tests/TestResults/testResults.trx $LOG_PATH
   services:
     - name: redis:alpine
   artifacts:

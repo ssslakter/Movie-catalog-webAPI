@@ -75,11 +75,9 @@ build_docker:
   only:
     - master
   script:
-    #- docker login gitlab.kupriyanov.space:5050
-    - docker build -t gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog .
-    - docker push gitlab.kupriyanov.space:5050/slava_chaunin/webapi-aspnet-movie-catalog  
-  dependencies:
-    - build_prod_job
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY/$CI_REGISTRY_IMAGE .
+    - docker push $CI_REGISTRY/$CI_REGISTRY_IMAGE
 
 
 deploy_job:

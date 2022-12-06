@@ -11,8 +11,6 @@ variables:
   DEPLOY_FOLDER: 'MovieCatalogAPI'
   LOG_PATH: 'app/Tests/logs'
   TARGET_OS: "linux"
-  #DATABASE_CONNECTION_STRING_TEST: "Server=host.docker.internal;Database=MovieDB;UserID=postgres;Password=2003;"
-  #DATABASE_CONNECTION_STRING_PROD: "Server=localhost;Database=MovieDB;UserID=postgres;Password=2003;"
 
 stages:
   - build
@@ -31,8 +29,8 @@ test_job:
   environment: test
   image: mcr.microsoft.com/dotnet/sdk:6.0-jammy-amd64
   stage: test
-  #variables:
-    #ConnectionStrings__Default: $DATABASE_CONNECTION_STRING_TEST
+  variables:
+    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
   only:
     - branches
   script:
@@ -77,8 +75,8 @@ build_docker:
 
 deploy_job:
   environment: production
-  #variables:
-    #ConnectionStrings__Default: $DATABASE_CONNECTION_STRING_PROD
+  variables:
+    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
   stage: deploy
   only:
     - master

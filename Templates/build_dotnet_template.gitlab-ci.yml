@@ -1,5 +1,4 @@
 .build_dotnet:
-  stage: build
   image: mcr.microsoft.com/dotnet/sdk:6.0-alpine-amd64
   variables:
     VERSION_NUMBER: "0.1"

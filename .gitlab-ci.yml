@@ -1,6 +1,6 @@
 include:
   - local: 'Templates/gilab-pages.yml'
-  - local: 'Templates/deploy_job.yml'
+  - local: 'Templates/deploy-job.yml'
 
 default:
   tags:

@@ -1,0 +1,18 @@
+deploy_job:
+  image: docker
+  environment: production
+  variables:
+    ASPNETCORE_URLS: https://192.168.0.4:7268
+    ConnectionStrings__Default: $DATABASE_CONNECTION_STRING
+  stage: deploy
+  only:
+    - master
+  script:
+    - docker login -u $CI_REGISTRY_USER -p  $CI_JOB_TOKEN $CI_REGISTRY
+    - docker images
+    - docker pull $CI_REGISTRY/$CI_REGISTRY_IMAGE
+    - docker run $CI_REGISTRY/$CI_REGISTRY_IMAGE -p 7268:1235-7800 --network "host"
+  services:
+    - redis:alpine
+  dependencies:
+    - build_docker

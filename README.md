@@ -1,10 +1,10 @@
 # [Movie-catalog-webAPI](https://github.com/Ssslakter/Movie-catalog-webAPI/wiki)
-Приложение представляет собой Backend для клиент-серверного приложения - каталога фильмов, которое может работать в браузере или в мобильном приложении.
+The project was carried out as part of the core Web development course at Higher IT School at Tomsk State University.
 
-В репозитории находится 2 проекта - с основным приложением и с тестами, а также файлы для пайплайнов и для GitLab Pages
+- The application serves as a Backend for a client-server movie catalog application, which can operate in a browser or a mobile app.
+- The repository contains 2 projects - the main application and tests, as well as files for pipelines and for GitLab Pages.
 
-Проект выполнялся в рамках основ Web разработке в HITS
+A more detailed description can be found on the [wiki](https://github.com/Ssslakter/Movie-catalog-webAPI/wiki).
 
-Более подробное описание можно найти на [вики](https://github.com/Ssslakter/Movie-catalog-webAPI/wiki)
+The principles of CI/CD were also tested on it, which is also documented on the wiki.
 
-Затем на нем также тестировались принципы CI/CD, об этом также написано на вики.
